@@ -13,6 +13,10 @@ do
       	model_name=`echo ${para#*=}`
    elif [[ $para == --batch_size* ]];then
       	batch_size=`echo ${para#*=}`
+   elif [[ $para == --conda_name* ]];then
+        conda_name=`echo ${para#*=}`
+        source ${test_path_dir}/set_conda.sh
+        source activate $conda_name
    elif [[ $para == --data_path* ]];then
        data_path=`echo ${para#*=}`
    fi
