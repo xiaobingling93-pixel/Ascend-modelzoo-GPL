@@ -219,8 +219,8 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
 ### 2 开始推理验证
 
-1. 安装`ais-infer`推理工具  
-   `ais-infer`工具获取及使用方式请点击查看 [[ais_infer 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_infer)]
+1. 安装`ais-bench`推理工具  
+   `ais-bench`工具获取及使用方式请点击查看 [[ais_bench 推理工具使用文档](https://gitee.com/ascend/tools/tree/master/ais-bench_workload/tool/ais_bench)]
 
 ##### * 如果有多卡推理的需求，请跳过该步骤，om_val.py该脚本不支持多卡推理
 
