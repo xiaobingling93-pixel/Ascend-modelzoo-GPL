@@ -412,7 +412,7 @@ def val(input_args):
 
     if isinstance(args.data, str) and args.data.endswith(".yaml"):
         args.data = check_det_dataset(args.data)
-    args.dataloader = get_dataloader(args, args.data.get("val"), args.batch)
+    args.dataloader = get_dataloader(args, args.data.get("val"), input_args.batch_size)
 
     om_model_path = input_args.om
     device_id = input_args.device_id
@@ -457,6 +457,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--weight', default='./yolov8n.pt', help='pt file path')
     parser.add_argument('--om', default='./yolov8n_bs1.om', help='om model path')
+    parser.add_argument('--batch_size', type=int, help='batch size of om model')
     parser.add_argument('--device_id', default='0', help='device id')
     input_args = parser.parse_args()
 
