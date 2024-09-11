@@ -19,6 +19,9 @@ do
         source activate $conda_name
    elif [[ $para == --data_path* ]];then
        data_path=`echo ${para#*=}`
+   elif [[ $para == --profiling* ]];then
+        profiling=`echo ${para#*=}`
+        export PROFILE_TYPE=${profiling}
    fi
 done
 
