@@ -108,10 +108,10 @@ yolov5s:
 bash test/train_eval_1p.sh  --data_path=数据集路径
 ```
 
-# 8.GPU 单机单卡训练指令  
+# 8.竞品A 单机单卡训练指令  
 python train.py --data coco.yaml --cfg yolov5x.yaml --weights '' --batch-size 32 --device 0  
 
-# 9.GPU 单机八卡训练指令  
+# 9.竞品A 单机八卡训练指令  
 python -m torch.distributed.launch --nproc_per_node 8 train.py --data coco.yaml --cfg yolov5x.yaml --weights '' --batch-size 256  
 
 # 10.CPU指令  
