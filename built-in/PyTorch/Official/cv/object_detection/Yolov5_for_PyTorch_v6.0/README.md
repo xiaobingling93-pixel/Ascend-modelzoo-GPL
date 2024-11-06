@@ -275,14 +275,14 @@ pip install numpy==1.23.0
 
 | NAME     | mAP0.5~0.95 |  FPS   | AMP_Type | Torch_Version | Architecture |  Device_Type  |
 | :-----:  | :---:  |:------:| :-----:  |:-------------:| :-----: |:-------------:|
-| 1p-NPU | 35.5 | 3082.4 |   FP16   |     1.11      | Arm | Atlas 800T A2 |
-| 8p-NPU | 35.5 | 419.7  |   FP16   |     1.11      | Arm | Atlas 800T A2 |
-| 1p-NPU | 35.5 | 3006.9 |   FP16   |      2.1      | Arm | Atlas 800T A2 |
-| 8p-NPU | 35.5 | 428.5  |   FP16   |      2.1      | Arm | Atlas 800T A2 |
-| 1p-NPU | 35.5 | 1724.8 |   FP32   |     1.11      | Arm | Atlas 800T A2 |
-| 8p-NPU | 35.5 | 221.6  |   FP32   |     1.11      | Arm | Atlas 800T A2 |
-| 1p-NPU | 35.5 | 1742.3 |   FP32   |      2.1      | Arm | Atlas 800T A2 |
-| 8p-NPU | 35.5 |  224   |   FP32   |      2.1      | Arm | Atlas 800T A2 |
+| 1p-NPU | 35.5 | 419.7 |   FP16   |     1.11      | Arm | Atlas 800T A2 |
+| 8p-NPU | 35.5 | 3082.4  |   FP16   |     1.11      | Arm | Atlas 800T A2 |
+| 1p-NPU | 35.5 | 428.5 |   FP16   |      2.1      | Arm | Atlas 800T A2 |
+| 8p-NPU | 35.5 | 3006.9  |   FP16   |      2.1      | Arm | Atlas 800T A2 |
+| 1p-NPU | 35.5 | 221.6 |   FP32   |     1.11      | Arm | Atlas 800T A2 |
+| 8p-NPU | 35.5 | 1724.8  |   FP32   |     1.11      | Arm | Atlas 800T A2 |
+| 1p-NPU | 35.5 | 224 |   FP32   |      2.1      | Arm | Atlas 800T A2 |
+| 8p-NPU | 35.5 | 1742.3    |   FP32   |      2.1      | Arm | Atlas 800T A2 |
 | 1p-NPU | 35.5 | 221.3  |   HF32   |     1.11      | Arm | Atlas 800T A2 |
 | 8p-NPU | 35.5 | 1741.7 |   HF32   |     1.11      | Arm | Atlas 800T A2 |
 | 1p-NPU | 35.5 | 222.5  |   HF32   |      2.1      | Arm | Atlas 800T A2 |
