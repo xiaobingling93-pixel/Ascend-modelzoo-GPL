@@ -1,6 +1,6 @@
 #!/bin/bash
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Download COCO 2017 dataset https://cocodataset.org
+# Download COCO 2017 dataset
 # Example usage: bash data/scripts/get_coco.sh
 # parent
 # ├── ultralytics
@@ -32,7 +32,7 @@ url=https://github.com/ultralytics/assets/releases/download/v0.0.0/
 if [ "$segments" == "true" ]; then
   f='coco2017labels-segments.zip' # 169 MB
 elif [ "$sama" == "true" ]; then
-  f='coco2017labels-segments-sama.zip' # 199 MB https://www.sama.com/sama-coco-dataset/
+  f='coco2017labels-segments-sama.zip'
 else
   f='coco2017labels.zip' # 46 MB
 fi

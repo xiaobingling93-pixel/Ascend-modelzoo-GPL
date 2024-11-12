@@ -240,7 +240,6 @@ def time_sync():
 
 
 def fuse_conv_and_bn(conv, bn):
-    """Fuse Conv2d() and BatchNorm2d() layers https://tehnokv.com/posts/fusing-batchnorm-and-conv/."""
     fusedconv = (
         nn.Conv2d(
             conv.in_channels,
@@ -480,12 +479,10 @@ def de_parallel(model):
 
 
 def one_cycle(y1=0.0, y2=1.0, steps=100):
-    """Returns a lambda function for sinusoidal ramp from y1 to y2 https://arxiv.org/pdf/1812.01187.pdf."""
     return lambda x: max((1 - math.cos(x * math.pi / steps)) / 2, 0) * (y2 - y1) + y1
 
 
 def init_seeds(seed=0, deterministic=False):
-    """Initialize random number generator (RNG) seeds https://pytorch.org/docs/stable/notes/randomness.html."""
     random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
@@ -507,10 +504,7 @@ def init_seeds(seed=0, deterministic=False):
 
 class ModelEMA:
     """
-    Updated Exponential Moving Average (EMA) from https://github.com/rwightman/pytorch-image-models. Keeps a moving
-    average of everything in the model state_dict (parameters and buffers).
-
-    For EMA details see https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+    Keeps a moving average of everything in the model state_dict (parameters and buffers).
 
     To disable EMA set the `enabled` attribute to `False`.
     """

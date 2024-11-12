@@ -75,7 +75,7 @@ class _RepeatSampler:
 
 
 def seed_worker(worker_id):  # noqa
-    """Set dataloader worker seed https://pytorch.org/docs/stable/notes/randomness.html#dataloader."""
+    """Set dataloader worker seed."""
     worker_seed = torch.initial_seed() % 2**32
     np.random.seed(worker_seed)
     random.seed(worker_seed)
@@ -166,7 +166,7 @@ def check_source(source):
     elif isinstance(source, torch.Tensor):
         tensor = True
     else:
-        raise TypeError("Unsupported image type. For supported types see https://docs.ultralytics.com/modes/predict")
+        raise TypeError("Unsupported image type.")
 
     return source, webcam, screenshot, from_img, in_memory, tensor
 

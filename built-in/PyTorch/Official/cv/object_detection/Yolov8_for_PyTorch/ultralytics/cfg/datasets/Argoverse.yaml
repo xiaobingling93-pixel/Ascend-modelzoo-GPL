@@ -1,6 +1,4 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Argoverse-HD dataset (ring-front-center camera) https://www.cs.cmu.edu/~mengtial/proj/streaming/ by Argo AI
-# Documentation: https://docs.ultralytics.com/datasets/detect/argoverse/
 # Example usage: yolo train data=Argoverse.yaml
 # parent
 # ├── ultralytics
@@ -59,8 +57,6 @@ download: |
           with open(k, "w") as f:
               f.writelines(labels[k])
 
-
-  # Download 'https://argoverse-hd.s3.us-east-2.amazonaws.com/Argoverse-HD-Full.zip' (deprecated S3 link)
   dir = Path(yaml['path'])  # dataset root dir
   urls = ['https://drive.google.com/file/d/1st9qW3BeIwQsnR0t8mRpvbsSWIo16ACi/view?usp=drive_link']
   print("\n\nWARNING: Argoverse dataset MUST be downloaded manually, autodownload will NOT work.")

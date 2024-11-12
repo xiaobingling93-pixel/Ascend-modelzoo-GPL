@@ -16,8 +16,6 @@ from .tal import bbox2dist
 class VarifocalLoss(nn.Module):
     """
     Varifocal loss by Zhang et al.
-
-    https://arxiv.org/abs/2008.13367.
     """
 
     def __init__(self):
@@ -75,7 +73,6 @@ class DFLoss(nn.Module):
         Return sum of left and right DFL losses.
 
         Distribution Focal Loss (DFL) proposed in Generalized Focal Loss
-        https://ieeexplore.ieee.org/document/9792391
         """
         target = target.clamp_(0, self.reg_max - 1 - 0.01)
         tl = target.long()  # target left
@@ -657,8 +654,8 @@ class v8OBBLoss(v8DetectionLoss):
 
         # targets
         try:
-            batch_idx = batch["batch_idx"].view(-1, 1)
-            targets = torch.cat((batch_idx, batch["cls"].view(-1, 1), batch["bboxes"].view(-1, 5)), 1)
+            batch_idx = batch["batch_idx"].npu().view(-1, 1)
+            targets = torch.cat((batch_idx, batch["cls"].npu().view(-1, 1), batch["bboxes"].npu().view(-1, 5)), 1)
             rw, rh = targets[:, 4] * imgsz[0].item(), targets[:, 5] * imgsz[1].item()
             targets = targets[(rw >= 2) & (rh >= 2)]  # filter rboxes of tiny size to stabilize training
             targets = self.preprocess(targets.to(self.device), batch_size, scale_tensor=imgsz[[1, 0, 1, 0]])

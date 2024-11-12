@@ -113,7 +113,7 @@ def bbox_iou(box1, box2, xywh=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-7
     if CIoU or DIoU or GIoU:
         cw = b1_x2.maximum(b2_x2) - b1_x1.minimum(b2_x1)  # convex (smallest enclosing box) width
         ch = b1_y2.maximum(b2_y2) - b1_y1.minimum(b2_y1)  # convex height
-        if CIoU or DIoU:  # Distance or Complete IoU https://arxiv.org/abs/1911.08287v1
+        if CIoU or DIoU:
             c2 = cw.pow(2) + ch.pow(2) + eps  # convex diagonal squared
             rho2 = (
                 (b2_x1 + b2_x2 - b1_x1 - b1_x2).pow(2) + (b2_y1 + b2_y2 - b1_y1 - b1_y2).pow(2)
@@ -125,7 +125,7 @@ def bbox_iou(box1, box2, xywh=True, GIoU=False, DIoU=False, CIoU=False, eps=1e-7
                 return iou - (rho2 / c2 + v * alpha)  # CIoU
             return iou - rho2 / c2  # DIoU
         c_area = cw * ch + eps  # convex area
-        return iou - (c_area - union) / c_area  # GIoU https://arxiv.org/pdf/1902.09630.pdf
+        return iou - (c_area - union) / c_area
     return iou  # IoU
 
 
@@ -194,8 +194,6 @@ def probiou(obb1, obb2, CIoU=False, eps=1e-7):
     """
     Calculate probabilistic IoU between oriented bounding boxes.
 
-    Implements the algorithm from https://arxiv.org/pdf/2106.06072v1.pdf.
-
     Args:
         obb1 (torch.Tensor): Ground truth OBBs, shape (N, 5), format xywhr.
         obb2 (torch.Tensor): Predicted OBBs, shape (N, 5), format xywhr.
@@ -238,8 +236,6 @@ def probiou(obb1, obb2, CIoU=False, eps=1e-7):
 
 def batch_probiou(obb1, obb2, eps=1e-7):
     """
-    Calculate the prob IoU between oriented bounding boxes, https://arxiv.org/pdf/2106.06072v1.pdf.
-
     Args:
         obb1 (torch.Tensor | np.ndarray): A tensor of shape (N, 5) representing ground truth obbs, with xywhr format.
         obb2 (torch.Tensor | np.ndarray): A tensor of shape (M, 5) representing predicted obbs, with xywhr format.
@@ -1221,8 +1217,6 @@ class ClassifyMetrics(SimpleClass):
 
 
 class OBBMetrics(SimpleClass):
-    """Metrics for evaluating oriented bounding box (OBB) detection, see https://arxiv.org/pdf/2106.06072.pdf."""
-
     def __init__(self, save_dir=Path("."), plot=False, on_plot=None, names=()) -> None:
         """Initialize an OBBMetrics instance with directory, plotting, callback, and class names."""
         self.save_dir = save_dir

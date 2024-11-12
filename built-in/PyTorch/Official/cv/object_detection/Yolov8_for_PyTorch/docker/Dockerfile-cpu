@@ -1,8 +1,5 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Builds ultralytics/ultralytics:latest-cpu image on DockerHub https://hub.docker.com/r/ultralytics/ultralytics
 # Image is CPU-optimized for ONNX, OpenVINO and PyTorch YOLO11 deployments
-
-# Start FROM Ubuntu image https://hub.docker.com/_/ubuntu
 FROM ubuntu:23.10
 
 # Set environment variables

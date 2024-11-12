@@ -19,8 +19,6 @@ from ultralytics.utils.files import increment_path
 
 class Colors:
     """
-    Ultralytics color palette https://docs.ultralytics.com/reference/utils/plotting/#ultralytics.utils.plotting.Colors.
-
     This class provides methods to work with the Ultralytics color palette, including converting hex color codes to
     RGB values.
 
@@ -80,8 +78,6 @@ class Colors:
     | 19    | <i class="fa-solid fa-square fa-2xl" style="color: #ffffff;"></i> | `#ffffff` | (255, 255, 255)   |
 
     !!! note "Ultralytics Brand Colors"
-
-        For Ultralytics brand colors see [https://www.ultralytics.com/brand](https://www.ultralytics.com/brand). Please use the official Ultralytics colors for all marketing materials.
     """
 
     def __init__(self):

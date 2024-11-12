@@ -594,8 +594,7 @@ def autocast_list(source):
             files.append(im)
         else:
             raise TypeError(
-                f"type {type(im).__name__} is not a supported Ultralytics prediction source type. \n"
-                f"See https://docs.ultralytics.com/modes/predict for supported source types."
+                f"type {type(im).__name__} is not a supported Ultralytics prediction source type."
             )
 
     return files
@@ -617,7 +616,6 @@ def get_best_youtube_url(url, method="pytube"):
         >>> url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         >>> best_url = get_best_youtube_url(url)
         >>> print(best_url)
-        https://rr4---sn-q4flrnek.googlevideo.com/videoplayback?expire=...
 
     Notes:
         - Requires additional libraries based on the chosen method: pytubefix, pafy, or yt-dlp.

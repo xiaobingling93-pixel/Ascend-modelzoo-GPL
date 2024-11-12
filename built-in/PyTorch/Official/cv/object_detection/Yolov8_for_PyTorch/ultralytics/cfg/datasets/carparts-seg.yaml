@@ -1,6 +1,5 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 # Carparts-seg dataset by Ultralytics
-# Documentation: https://docs.ultralytics.com/datasets/segment/carparts-seg/
 # Example usage: yolo train data=carparts-seg.yaml
 # parent
 # ├── ultralytics

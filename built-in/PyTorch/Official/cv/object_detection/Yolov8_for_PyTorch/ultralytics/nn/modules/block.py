@@ -55,8 +55,6 @@ __all__ = (
 class DFL(nn.Module):
     """
     Integral module of Distribution Focal Loss (DFL).
-
-    Proposed in Generalized Focal Loss https://ieeexplore.ieee.org/document/9792391
     """
 
     def __init__(self, c1=16):
@@ -150,8 +148,6 @@ class HGBlock(nn.Module):
 
 
 class SPP(nn.Module):
-    """Spatial Pyramid Pooling (SPP) layer https://arxiv.org/abs/1406.4729."""
-
     def __init__(self, c1, c2, k=(5, 9, 13)):
         """Initialize the SPP layer with input/output channels and pooling kernel sizes."""
         super().__init__()

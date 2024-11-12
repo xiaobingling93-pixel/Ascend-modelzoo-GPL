@@ -304,14 +304,6 @@ def safe_download(
             a successful download. Default: 1E0.
         exist_ok (bool, optional): Whether to overwrite existing contents during unzipping. Defaults to False.
         progress (bool, optional): Whether to display a progress bar during the download. Default: True.
-
-    Example:
-        ```python
-        from ultralytics.utils.downloads import safe_download
-
-        link = "https://ultralytics.com/assets/bus.jpg"
-        path = safe_download(link)
-        ```
     """
     gdrive = url.startswith("https://drive.google.com/")  # check if the URL is a Google Drive link
     if gdrive:
@@ -444,7 +436,7 @@ def attempt_download_asset(file, repo="ultralytics/assets", release="v8.3.0", **
         download_url = f"https://github.com/{repo}/releases/download"
         if str(file).startswith(("http:/", "https:/")):  # download
             url = str(file).replace(":/", "://")  # Pathlib turns :// -> :/
-            file = url2file(name)  # parse authentication https://url.com/file.txt?auth...
+            file = url2file(name)
             if Path(file).is_file():
                 LOGGER.info(f"Found {clean_url(url)} locally at {file}")  # file already exists
             else:
@@ -477,11 +469,6 @@ def download(url, dir=Path.cwd(), unzip=True, delete=False, curl=False, threads=
         threads (int, optional): Number of threads to use for concurrent downloads. Defaults to 1.
         retry (int, optional): Number of retries in case of download failure. Defaults to 3.
         exist_ok (bool, optional): Whether to overwrite existing contents during unzipping. Defaults to False.
-
-    Example:
-        ```python
-        download("https://ultralytics.com/assets/example.zip", dir="path/to/dir", unzip=True)
-        ```
     """
     dir = Path(dir)
     dir.mkdir(parents=True, exist_ok=True)  # make directory

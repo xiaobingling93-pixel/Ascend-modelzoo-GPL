@@ -125,7 +125,6 @@ markdown_extensions:
   - pymdownx.tabbed:
       alternate_style: true
 
-# Validation settings https://www.mkdocs.org/user-guide/configuration/#validation
 validation:
   nav:
     omitted_files: info

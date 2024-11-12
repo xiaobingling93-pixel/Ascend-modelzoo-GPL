@@ -116,8 +116,6 @@ class AIFI(TransformerEncoderLayer):
 
 
 class TransformerLayer(nn.Module):
-    """Transformer layer https://arxiv.org/abs/2010.11929 (LayerNorm layers removed for better performance)."""
-
     def __init__(self, c, num_heads):
         """Initializes a self-attention mechanism using linear transformations and multi-head attention."""
         super().__init__()
@@ -135,8 +133,6 @@ class TransformerLayer(nn.Module):
 
 
 class TransformerBlock(nn.Module):
-    """Vision Transformer https://arxiv.org/abs/2010.11929."""
-
     def __init__(self, c1, c2, num_heads, num_layers):
         """Initialize a Transformer module with position embedding and specified number of heads and layers."""
         super().__init__()

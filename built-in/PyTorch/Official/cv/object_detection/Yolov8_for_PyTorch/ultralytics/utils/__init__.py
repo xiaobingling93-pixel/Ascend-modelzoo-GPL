@@ -30,7 +30,7 @@ from ultralytics import __version__
 
 # PyTorch Multi-GPU DDP Constants
 RANK = int(os.getenv("RANK", -1))
-LOCAL_RANK = int(os.getenv("LOCAL_RANK", -1))  # https://pytorch.org/docs/stable/elastic/run.html
+LOCAL_RANK = int(os.getenv("LOCAL_RANK", -1))
 
 # Other Constants
 ARGV = sys.argv or ["", ""]  # sometimes sys.argv = []
@@ -80,7 +80,6 @@ HELP_MSG = """
             Where   TASK (optional) is one of [detect, segment, classify, pose, obb]
                     MODE (required) is one of [train, val, predict, export, track, benchmark]
                     ARGS (optional) are any number of custom "arg=value" pairs like "imgsz=320" that override defaults.
-                        See all ARGS at https://docs.ultralytics.com/usage/cfg or with "yolo cfg"
 
         - Train a detection model for 10 epochs with an initial learning_rate of 0.01
             yolo detect train data=coco8.yaml model=yolo11n.pt epochs=10 lr0=0.01
@@ -102,8 +101,6 @@ HELP_MSG = """
             yolo copy-cfg
             yolo cfg
 
-    Docs: https://docs.ultralytics.com
-    Community: https://community.ultralytics.com
     GitHub: https://github.com/ultralytics/ultralytics
     """
 
@@ -1206,7 +1203,6 @@ class SettingsManager(JSONDict):
         self.help_msg = (
             f"\nView Ultralytics Settings with 'yolo settings' or at '{self.file}'"
             "\nUpdate Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. "
-            "For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings."
         )
 
         with torch_distributed_zero_first(RANK):
@@ -1260,13 +1256,11 @@ def deprecation_warn(arg, new_arg):
 
 
 def clean_url(url):
-    """Strip auth from URL, i.e. https://url.com/file.txt?auth -> https://url.com/file.txt."""
     url = Path(url).as_posix().replace(":/", "://")  # Pathlib turns :// -> :/, as_posix() for Windows
-    return urllib.parse.unquote(url).split("?")[0]  # '%2F' to '/', split https://url.com/file.txt?auth
+    return urllib.parse.unquote(url).split("?")[0]
 
 
 def url2file(url):
-    """Convert URL to filename, i.e. https://url.com/file.txt?auth -> file.txt."""
     return Path(clean_url(url)).name
 
 

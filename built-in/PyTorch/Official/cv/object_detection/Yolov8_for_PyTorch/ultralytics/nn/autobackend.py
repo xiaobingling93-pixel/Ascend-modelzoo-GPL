@@ -245,7 +245,7 @@ class AutoBackend(nn.Module):
         elif engine:
             LOGGER.info(f"Loading {w} for TensorRT inference...")
             try:
-                import tensorrt as trt  # noqa https://developer.nvidia.com/nvidia-tensorrt-download
+                import tensorrt as trt
             except ImportError:
                 if LINUX:
                     check_requirements("tensorrt>7.0.0,!=10.1.0")
@@ -328,7 +328,7 @@ class AutoBackend(nn.Module):
             metadata = Path(w) / "metadata.yaml"
 
         # TF GraphDef
-        elif pb:  # https://www.tensorflow.org/guide/migrate#a_graphpb_or_graphpbtxt
+        elif pb:
             LOGGER.info(f"Loading {w} for TensorFlow GraphDef inference...")
             import tensorflow as tf
 
@@ -350,7 +350,7 @@ class AutoBackend(nn.Module):
                 pass
 
         # TFLite or TFLite Edge TPU
-        elif tflite or edgetpu:  # https://www.tensorflow.org/lite/guide/python#install_tensorflow_lite_for_python
+        elif tflite or edgetpu:
             try:  # https://coral.ai/docs/edgetpu/tflite-python/#update-existing-tf-lite-code-for-the-edge-tpu
                 from tflite_runtime.interpreter import Interpreter, load_delegate
             except ImportError:
@@ -431,7 +431,6 @@ class AutoBackend(nn.Module):
 
             raise TypeError(
                 f"model='{w}' is not a supported model format. Ultralytics supports: {export_formats()['Format']}\n"
-                f"See https://docs.ultralytics.com/modes/predict for help."
             )
 
         # Load external metadata YAML

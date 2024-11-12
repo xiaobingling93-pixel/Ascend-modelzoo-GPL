@@ -509,7 +509,7 @@ def check_file(file, suffix="", download=True, download_dir=".", hard=True):
         return file
     elif download and file.lower().startswith(("https://", "http://", "rtsp://", "rtmp://", "tcp://")):  # download
         url = file  # warning: Pathlib turns :// -> :/
-        file = Path(download_dir) / url2file(file)  # '%2F' to '/', split https://url.com/file.txt?auth
+        file = Path(download_dir) / url2file(file)
         if file.exists():
             LOGGER.info(f"Found {clean_url(url)} locally at {file}")  # file already exists
         else:
@@ -714,7 +714,6 @@ def check_amp(model):
 
 
 def git_describe(path=ROOT):  # path must be a directory
-    """Return human-readable git description, i.e. v5.0-5-g3e25f1e https://git-scm.com/docs/git-describe."""
     try:
         return subprocess.check_output(f"git -C {path} describe --tags --long --always", shell=True).decode()[:-1]
     except Exception:

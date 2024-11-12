@@ -1,8 +1,4 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Builds ultralytics/ultralytics:latest-conda image on DockerHub https://hub.docker.com/r/ultralytics/ultralytics
-# Image is optimized for Ultralytics Anaconda (https://anaconda.org/conda-forge/ultralytics) installation and usage
-
-# Start FROM miniconda3 image https://hub.docker.com/r/continuumio/miniconda3
 FROM continuumio/miniconda3:latest
 
 # Set environment variables

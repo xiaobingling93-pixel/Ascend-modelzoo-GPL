@@ -35,6 +35,7 @@ fraction: 1.0 # (float) dataset fraction to train on (default is 1.0, all images
 profile: False # (bool) profile ONNX and TensorRT speeds during training for loggers
 freeze: None # (int | list, optional) freeze first n layers, or freeze list of layer indices during training
 multi_scale: False # (bool) Whether to use multiscale during training
+data_shuffle: True # trun off the shuffle if train for performance
 # Segmentation
 overlap_mask: True # (bool) masks should overlap during training (segment train only)
 mask_ratio: 4 # (int) mask downsample ratio (segment train only)
@@ -76,7 +77,7 @@ show_boxes: True # (bool) show prediction boxes
 line_width: # (int, optional) line width of the bounding boxes. Scaled to image size if None.
 
 # Export settings ------------------------------------------------------------------------------------------------------
-format: torchscript # (str) format to export to, choices at https://docs.ultralytics.com/modes/export/#export-formats
+format: torchscript
 keras: False # (bool) use Kera=s
 optimize: False # (bool) TorchScript: optimize for mobile
 int8: False # (bool) CoreML/TF INT8 quantization

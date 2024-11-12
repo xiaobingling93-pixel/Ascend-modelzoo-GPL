@@ -1,5 +1,4 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Builds ultralytics/ultralytics:latest-cpu image on DockerHub https://hub.docker.com/r/ultralytics/ultralytics
 # Image is CPU-optimized for ONNX, OpenVINO and PyTorch YOLO11 deployments
 
 # Use official Python base image for reproducibility (3.11.10 for export and 3.12.6 for inference)

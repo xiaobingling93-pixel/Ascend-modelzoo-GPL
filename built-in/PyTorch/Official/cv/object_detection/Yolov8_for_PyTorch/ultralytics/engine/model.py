@@ -166,12 +166,6 @@ class Model(nn.Module):
         Returns:
             (List[ultralytics.engine.results.Results]): A list of prediction results, each encapsulated in a
                 Results object.
-
-        Examples:
-            >>> model = YOLO("yolo11n.pt")
-            >>> results = model("https://ultralytics.com/images/bus.jpg")
-            >>> for r in results:
-            ...     print(f"Detected {len(r)} objects in image")
         """
         return self.predict(source, stream, **kwargs)
 
@@ -213,12 +207,6 @@ class Model(nn.Module):
 
         Returns:
             (bool): True if the model is a valid Ultralytics HUB model, False otherwise.
-
-        Examples:
-            >>> Model.is_hub_model("https://hub.ultralytics.com/models/MODEL")
-            True
-            >>> Model.is_hub_model("yolo11n.pt")
-            False
         """
         return model.startswith(f"{HUB_WEB_ROOT}/models/")
 
@@ -481,12 +469,6 @@ class Model(nn.Module):
 
         Raises:
             AssertionError: If the model is not a PyTorch model.
-
-        Examples:
-            >>> model = YOLO("yolo11n.pt")
-            >>> image = "https://ultralytics.com/images/bus.jpg"
-            >>> embeddings = model.embed(image)
-            >>> print(embeddings[0].shape)
         """
         if not kwargs.get("embed"):
             kwargs["embed"] = [len(self.model.model) - 2]  # embed second-to-last layer if no indices passed
@@ -789,7 +771,7 @@ class Model(nn.Module):
             "model": self.overrides["model"],
             "task": self.task,
         }  # method defaults
-        args = {**overrides, **custom, **kwargs, "mode": "train"}  # highest priority args on the right
+        args = {**overrides, **custom, **kwargs, "mode": "train", "data_shuffle": kwargs.get("data_shuffle")}  # highest priority args on the right
         if args.get("resume"):
             args["resume"] = self.ckpt_path
 

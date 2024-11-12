@@ -1,6 +1,5 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 # Package-seg dataset by Ultralytics
-# Documentation: https://docs.ultralytics.com/datasets/segment/package-seg/
 # Example usage: yolo train data=package-seg.yaml
 # parent
 # ├── ultralytics

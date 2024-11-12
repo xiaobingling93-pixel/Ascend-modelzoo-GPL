@@ -231,7 +231,6 @@ class Exporter:
                 "WARNING ⚠️ YOLOWorld (original version) export is not supported to any format.\n"
                 "WARNING ⚠️ YOLOWorldv2 models (i.e. 'yolov8s-worldv2.pt') only support export to "
                 "(torchscript, onnx, openvino, engine, coreml) formats. "
-                "See https://docs.ultralytics.com/models/yolo-world for details."
             )
         if self.args.int8 and not self.args.data:
             self.args.data = DEFAULT_CFG.data or TASK2DATA[getattr(model, "task", "detect")]  # assign default data
@@ -355,7 +354,6 @@ class Exporter:
                 f"\nResults saved to {colorstr('bold', file.parent.resolve())}"
                 f'\nPredict:         yolo predict task={model.task} model={f} imgsz={imgsz} {q} {predict_data}'
                 f'\nValidate:        yolo val task={model.task} model={f} imgsz={imgsz} data={data} {q} {s}'
-                f'\nVisualize:       https://netron.app'
             )
 
         self.run_callbacks("on_export_end")
@@ -388,7 +386,7 @@ class Exporter:
 
         ts = torch.jit.trace(self.model, self.im, strict=False)
         extra_files = {"config.txt": json.dumps(self.metadata)}  # torch._C.ExtraFilesMap()
-        if self.args.optimize:  # https://pytorch.org/tutorials/recipes/mobile_interpreter.html
+        if self.args.optimize:
             LOGGER.info(f"{prefix} optimizing for mobile...")
             from torch.utils.mobile_optimizer import optimize_for_mobile
 
@@ -688,7 +686,6 @@ class Exporter:
 
     @try_export
     def export_engine(self, dla=None, prefix=colorstr("TensorRT:")):
-        """YOLO TensorRT export https://developer.nvidia.com/tensorrt."""
         assert self.im.device.type != "cpu", "export running on CPU but must be on GPU, i.e. use 'device=0'"
         f_onnx, _ = self.export_onnx()  # run before TRT import https://github.com/ultralytics/ultralytics/issues/7016
 
@@ -1032,7 +1029,6 @@ class Exporter:
         return f, None
 
     def _add_tflite_metadata(self, file):
-        """Add metadata to *.tflite models per https://www.tensorflow.org/lite/models/convert/metadata."""
         import flatbuffers
 
         try:

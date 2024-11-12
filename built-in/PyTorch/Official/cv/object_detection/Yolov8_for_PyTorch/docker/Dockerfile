@@ -1,8 +1,5 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Builds ultralytics/ultralytics:latest image on DockerHub https://hub.docker.com/r/ultralytics/ultralytics
 # Image is CUDA-optimized for YOLO11 single/multi-GPU training and inference
-
-# Start FROM PyTorch image https://hub.docker.com/r/pytorch/pytorch or nvcr.io/nvidia/pytorch:23.03-py3
 FROM pytorch/pytorch:2.5.0-cuda12.4-cudnn9-runtime
 
 # Set environment variables
@@ -28,7 +25,6 @@ RUN apt-get update && \
     && rm -rf /var/lib/apt/lists/*
 
 # Security updates
-# https://security.snyk.io/vuln/SNYK-UBUNTU1804-OPENSSL-3314796
 RUN apt upgrade --no-install-recommends -y openssl tar
 
 # Create working directory
@@ -84,7 +80,6 @@ RUN rm -rf tmp /root/.config/Ultralytics/persistent_cache.json
 # sudo docker system prune -a --volumes
 
 # Update Ubuntu drivers
-# https://www.maketecheasier.com/install-nvidia-drivers-ubuntu/
 
 # DDP test
 # python -m torch.distributed.run --nproc_per_node 2 --master_port 1 train.py --epochs 3

@@ -65,7 +65,6 @@ CLI_HELP_MSG = f"""
         Where   TASK (optional) is one of {TASKS}
                 MODE (required) is one of {MODES}
                 ARGS (optional) are any number of custom 'arg=value' pairs like 'imgsz=320' that override defaults.
-                    See all ARGS at https://docs.ultralytics.com/usage/cfg or with 'yolo cfg'
 
     1. Train a detection model for 10 epochs with an initial learning_rate of 0.01
         yolo train data=coco8.yaml model=yolo11n.pt epochs=10 lr0=0.01
@@ -90,8 +89,6 @@ CLI_HELP_MSG = f"""
         yolo copy-cfg
         yolo cfg
 
-    Docs: https://docs.ultralytics.com
-    Community: https://community.ultralytics.com
     GitHub: https://github.com/ultralytics/ultralytics
     """
 
@@ -547,8 +544,6 @@ def handle_yolo_settings(args: List[str]) -> None:
         - Other arguments are treated as key-value pairs to update specific settings.
         - The function will check for alignment between the provided settings and the existing ones.
         - After processing, the updated settings will be displayed.
-        - For more information on handling YOLO settings, visit:
-          https://docs.ultralytics.com/quickstart/#ultralytics-settings
     """
     url = "https://docs.ultralytics.com/quickstart/#ultralytics-settings"  # help URL
     try:

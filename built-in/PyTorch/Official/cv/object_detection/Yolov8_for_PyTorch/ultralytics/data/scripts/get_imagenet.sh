@@ -1,6 +1,5 @@
 #!/bin/bash
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# Download ILSVRC2012 ImageNet dataset https://image-net.org
 # Example usage: bash data/scripts/get_imagenet.sh
 # parent
 # ├── ultralytics
@@ -46,6 +45,3 @@ fi
 
 # Delete corrupted image (optional: PNG under JPEG name that may cause dataloaders to fail)
 # rm train/n04266014/n04266014_10835.JPEG
-
-# TFRecords (optional)
-# wget https://raw.githubusercontent.com/tensorflow/models/master/research/slim/datasets/imagenet_lsvrc_2015_synsets.txt

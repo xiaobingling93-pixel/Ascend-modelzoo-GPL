@@ -288,7 +288,7 @@ class BaseTrainer:
 
         # Dataloaders
         batch_size = self.batch_size // max(world_size, 1)
-        self.train_loader = self.get_dataloader(self.trainset, batch_size=batch_size, rank=LOCAL_RANK, mode="train")
+        self.train_loader = self.get_dataloader(self.trainset, batch_size=batch_size, rank=LOCAL_RANK, mode="train", data_shuffle=self.args.data_shuffle)
         if RANK in {-1, 0}:
             # Note: When training DOTA dataset, double batch size could get OOM on images with >2000 objects.
             self.test_loader = self.get_dataloader(
@@ -364,7 +364,11 @@ class BaseTrainer:
                 LOGGER.info(self.progress_string())
                 pbar = TQDM(enumerate(self.train_loader), total=nb)
             self.tloss = None
+            d_l = time.time()
             for i, batch in pbar:
+                start_time = time.time()
+                t_time = time.time()
+                d_time = t_time - d_l
                 self.run_callbacks("on_train_batch_start")
                 # Warmup
                 ni = i + nb * epoch
@@ -425,6 +429,16 @@ class BaseTrainer:
                         self.plot_training_samples(batch, ni)
 
                 self.run_callbacks("on_train_batch_end")
+                sum_time = time.time() - start_time
+                ptime = time.time() - d_l
+
+                # Log
+                if RANK in [-1, 0]:
+                    print(
+                        'Epoch:[%2g][%4g/%4g][FPS:%3.1f][mTime:%3.3f][pTime:%3.3f][dTime:%3.3f]' % (
+                        epoch, i, nb, self.batch_size / sum_time, sum_time, ptime, d_time))
+                d_l = time.time()
+
 
             self.lr = {f"lr/pg{ir}": x["lr"] for ir, x in enumerate(self.optimizer.param_groups)}  # for loggers
             self.run_callbacks("on_train_epoch_end")

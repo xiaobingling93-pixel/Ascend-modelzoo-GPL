@@ -868,7 +868,7 @@ class MixUp(BaseMixTransform):
     Applies MixUp augmentation to image datasets.
 
     This class implements the MixUp augmentation technique as described in the paper "mixup: Beyond Empirical Risk
-    Minimization" (https://arxiv.org/abs/1710.09412). MixUp combines two images and their labels using a random weight.
+    Minimization". MixUp combines two images and their labels using a random weight.
 
     Attributes:
         dataset (Any): The dataset to which MixUp augmentation will be applied.
@@ -928,7 +928,7 @@ class MixUp(BaseMixTransform):
         Applies MixUp augmentation to the input labels.
 
         This method implements the MixUp augmentation technique as described in the paper
-        "mixup: Beyond Empirical Risk Minimization" (https://arxiv.org/abs/1710.09412).
+        "mixup: Beyond Empirical Risk Minimization".
 
         Args:
             labels (Dict): A dictionary containing the original image and label information.
@@ -1633,7 +1633,7 @@ class CopyPaste(BaseMixTransform):
     CopyPaste class for applying Copy-Paste augmentation to image datasets.
 
     This class implements the Copy-Paste augmentation technique as described in the paper "Simple Copy-Paste is a Strong
-    Data Augmentation Method for Instance Segmentation" (https://arxiv.org/abs/2012.07177). It combines objects from
+    Data Augmentation Method for Instance Segmentation". It combines objects from
     different images to create new training samples.
 
     Attributes:

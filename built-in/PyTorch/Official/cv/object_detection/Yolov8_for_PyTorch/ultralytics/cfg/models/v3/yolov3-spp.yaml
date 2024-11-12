@@ -1,5 +1,4 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# YOLOv3-SPP object detection model with P3-P5 outputs. For details see https://docs.ultralytics.com/models/yolov3
 
 # Parameters
 nc: 80 # number of classes

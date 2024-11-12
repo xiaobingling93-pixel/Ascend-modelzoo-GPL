@@ -73,7 +73,6 @@ class HUBTrainingSession:
             if identifier.startswith(f"{HUB_WEB_ROOT}/models/") and not self.client.authenticated:
                 LOGGER.warning(
                     f"{PREFIX}WARNING ⚠️ Please log in using 'yolo login API_KEY'. "
-                    "You can find your API Key at: https://hub.ultralytics.com/settings?tab=api+keys."
                 )
 
     @classmethod
@@ -147,11 +146,6 @@ class HUBTrainingSession:
     def _parse_identifier(identifier):
         """
         Parses the given identifier to determine the type of identifier and extract relevant components.
-
-        The method supports different identifier formats:
-            - A HUB model URL https://hub.ultralytics.com/models/MODEL
-            - A HUB model URL with API Key https://hub.ultralytics.com/models/MODEL?api_key=APIKEY
-            - A local filename that ends with '.pt' or '.yaml'
 
         Args:
             identifier (str): The identifier string to be parsed.
@@ -338,7 +332,6 @@ class HUBTrainingSession:
                     f"{PREFIX} WARNING ⚠️ Model 'best.pt' not found, copying 'last.pt' to 'best.pt' and uploading. "
                     "This often happens when resuming training in transient environments like Google Colab. "
                     "For more reliable training, consider using Ultralytics HUB Cloud. "
-                    "Learn more at https://docs.ultralytics.com/hub/cloud-training."
                 )
                 shutil.copy(last, weights)  # copy last.pt to best.pt
             else:

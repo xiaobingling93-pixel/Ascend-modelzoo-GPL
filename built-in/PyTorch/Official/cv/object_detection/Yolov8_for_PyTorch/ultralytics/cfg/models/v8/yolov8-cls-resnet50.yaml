@@ -1,5 +1,4 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
-# YOLOv8-cls image classification model. For Usage examples see https://docs.ultralytics.com/tasks/classify
 
 # Parameters
 nc: 1000 # number of classes

@@ -1,6 +1,5 @@
 # Ultralytics YOLO 🚀, AGPL-3.0 license
 # African-wildlife dataset by Ultralytics
-# Documentation: https://docs.ultralytics.com/datasets/detect/african-wildlife/
 # Example usage: yolo train data=african-wildlife.yaml
 # parent
 # ├── ultralytics
