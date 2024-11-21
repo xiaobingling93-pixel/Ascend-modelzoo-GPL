@@ -95,14 +95,10 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
     └── requirements.txt              放到yolov5下
    ```   
 
-3. 安装依赖  
+3. 安装依赖
+
+   请访问[msit推理工具](https://gitee.com/ascend/msit/tree/master/msit/)代码仓，根据readme文档进行工具安装surgeon组件。
    ```
-   git clone https://gitee.com/ascend/msadvisor.git
-   cd msadvisor/auto-optimizer
-   python3 -m pip install --upgrade pip
-   python3 -m pip install wheel
-   python3 -m pip install .
-   cd ../..
    pip3 install -r requirements.txt
    ```
 
@@ -279,31 +275,33 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 1. 数据预处理，将原始数据转换为模型输入的数据
    执行yolov5_preprocess.py脚本，完成预处理
    ```
-   python3 yolov5_preprocess.py --data_path="./coco" --nms-mode nms_script
+   python3 yolov5_preprocess.py --data_path="./coco" --nms_mode nms_script --tag 6.1
    ```
    - 命令参数说明：
      -   `--data_path`：coco数据集的路径
      -   `--nms_mode`：模型推理方式，可选`[nms_op/nms_script]`, 默认`nms_script`
+     -   `--tag`：模型版本，可选`[2.0/3.1/4.0/5.0/6.0/6.1/6.2/7.0]`
     执行完后，会在当前目录下生成./prep_data文件夹用于储存预处理完的二进制数据，并且生成path_list.npy用于储存图片的路径，生成shapes_list.npy用于储存图片原始shape
 
 2. 数据集推理
    目前ais_bench已经支持多卡推理，若执行下述命令报错，请重新安装最新ais_bench
    ```
-   python3 -m ais_bench --m yolov5s_bs4.om --input ./prep_data --output ./results --device 0,1
+   python3 -m ais_bench --m yolov5s_bs4.om --input ./prep_data --output ./results --output_dirname om_output --device 0,1
    ```
    - 命令参数说明：
      -   `--m`：om模型的路径
      -   `--input`：预处理生成的./prep_data的路径
-     -   `--output`：推理结果保存的地址，会在./results下生成以时间戳命名的文件夹
+     -   `--output`：推理结果保存的地址，会在./results下生成子目录
+     -   `--output_dirname`：推理结果子目录名
      -   `--device`：现支持多卡推理
 
 3. 后处理和精度验证，将推理结果转换为字典并储存进json文件，用于计算精度
    ```
-   python3 yolov5_postprocess.py --nms_mode nms_script --ground_truth_json "./coco/instances_val2017.json" --output "./results/2023_04_23-17_35_23" --onnx yolov5s.onnx
+   python3 yolov5_postprocess.py --nms_mode nms_script --ground_truth_json "./coco/instances_val2017.json" --output "./results/om_output/device0_0" --onnx yolov5s.onnx
    ```
    - 命令参数说明：
-     -   `--ground_truth_json`：om模型的路径
-     -   `--output`：推理结果保存的路径，在./results下生成以时间戳命名的文件夹
+     -   `--ground_truth_json`：coco数据集标杆文件
+     -   `--output`：推理结果保存的路径，需要指定到bin文件所在目录。单卡推理时路径为./results/om_output
      -   `--onnx`：为onnx模型路径
      -   `--nms_mode`：模型推理方式，可选`[nms_op/nms_script]`, 默认`nms_script` 
 
@@ -326,21 +324,22 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
 3. 推理
    ```
-   python3 -m ais_bench --m yolov5m_bs24_aipp.om --input ./prep_data_aipp --output ./results --device 0,1
+   python3 -m ais_bench --m yolov5s_bs4.om --input ./prep_data --output ./results --output_dirname om_output --device 0,1
    ```
    - 命令参数说明：
-     -   `--input`：二进制数据集路径
-     -   `--output`：推理结果保存目录
-     -   `--output_dirname`：推理结果保存子目录
-     -   `--device`：请下载最新ais_bech，目前已经支持多卡推理
+     -   `--m`：om模型的路径
+     -   `--input`：预处理生成的./prep_data的路径
+     -   `--output`：推理结果保存的地址，会在./results下生成子目录
+     -   `--output_dirname`：推理结果子目录名
+     -   `--device`：现支持多卡推理
 
-4. 数据后处理
+4. 后处理和精度验证，将推理结果转换为字典并储存进json文件，用于计算精度
    ```
-   python3 yolov5_postprocess.py --ground_truth_json "./coco/instances_val2017.json" --output "./results/2023_04_23-17_35_23" --onnx yolov5s.onnx
+   python3 yolov5_postprocess.py --nms_mode nms_script --ground_truth_json "./coco/instances_val2017.json" --output "./results/om_output/device0_0" --onnx yolov5s.onnx
    ```
    - 命令参数说明：
-     -   `--ground_truth_json`：om模型的路径
-     -   `--output`：推理结果保存的路径，在./results下生成以时间戳命名的文件夹
+     -   `--ground_truth_json`：coco数据集标杆文件
+     -   `--output`：推理结果保存的路径，需要指定到bin文件所在目录。单卡推理时路径为./results/om_output
      -   `--onnx`：为onnx模型路径
 
 # FAQ

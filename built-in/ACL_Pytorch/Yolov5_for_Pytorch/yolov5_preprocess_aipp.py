@@ -65,7 +65,7 @@ if __name__ == '__main__':
     parser.add_argument('--batch_size', type=int, default=1, help='batch size')
     parser.add_argument('--img_size', nargs='+', type=int, default=640, help='inference size (pixels)')
     parser.add_argument('--cfg_file', type=str, default='model.yaml', help='model parameters config file')
-    parser.add_argument('--single-cls', action='store_true', help='treat as single-class dataset')
+    parser.add_argument('--single_cls', action='store_true', help='treat as single-class dataset')
     opt = parser.parse_args()
 
     with open(opt.cfg_file) as f:
