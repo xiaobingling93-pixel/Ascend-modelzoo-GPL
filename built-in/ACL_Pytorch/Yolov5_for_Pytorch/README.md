@@ -285,12 +285,15 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
 2. 数据集推理
    目前ais_bench已经支持多卡推理，若执行下述命令报错，请重新安装最新ais_bench
-   ```
+   ```shell
+   # nms_script
    python3 -m ais_bench --m yolov5s_bs4.om --input ./prep_data --output ./results --output_dirname om_output --device 0,1
+   # nms_op
+   python3 -m ais_bench --m yolov5s_bs4.om --input ./prep_data,./img_info --output ./results --output_dirname om_output --device 0,1
    ```
    - 命令参数说明：
      -   `--m`：om模型的路径
-     -   `--input`：预处理生成的./prep_data的路径
+     -   `--input`：预处理生成的./prep_data的路径，如果使用nms_op则需要增加./img_info路径
      -   `--output`：推理结果保存的地址，会在./results下生成子目录
      -   `--output_dirname`：推理结果子目录名
      -   `--device`：现支持多卡推理

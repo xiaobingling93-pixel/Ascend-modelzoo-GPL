@@ -44,7 +44,7 @@ def main(opt, cfg):
             img_name_list.append(img_name)
             # save img and img shape
             img.astype(np.float16).tofile("{}/{}.bin".format(opt.prep_data, idx))
-            img_info.astype(np.float32).tofile("{}/{}.bin".format(opt.img_info, idx))
+            img_info.astype(np.float16).tofile("{}/{}.bin".format(opt.img_info, idx))
         np.save("img_name.npy", img_name_list)
         print(
             "The dataset has been processed.The image name is stored in img_name.npy,the shape of the image is stored in the img_info folder")
