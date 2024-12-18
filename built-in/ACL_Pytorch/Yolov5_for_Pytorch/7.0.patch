@@ -14,7 +14,7 @@ index c050f32..d67cd5f 100644
      y = result.float().sigmoid()
      y[..., 0:2] = (y[..., 0:2] * 2. - 0.5 + grid) * stride  # xy
 diff --git a/built-in/ACL_Pytorch/Yolov5_for_Pytorch/common/util/model.py b/built-in/ACL_Pytorch/Yolov5_for_Pytorch/common/util/model.py
-index ec6f2c6..f369d23 100644
+index ec6f2c6..5215518 100644
 --- a/built-in/ACL_Pytorch/Yolov5_for_Pytorch/common/util/model.py
 +++ b/built-in/ACL_Pytorch/Yolov5_for_Pytorch/common/util/model.py
 @@ -20,7 +20,7 @@ from pathlib import Path
@@ -26,3 +26,12 @@ index ec6f2c6..f369d23 100644
  except:
      from utils.utils import non_max_suppression, scale_coords  # tag = 2.0
  
+@@ -83,7 +83,7 @@ def forward_nms_script(model, dataloader, cfg):
+         boxout = nms(box_out, conf_thres=cfg["conf_thres"], iou_thres=cfg["iou_thres"])
+         for idx, pred in enumerate(boxout):
+             try:
+-                scale_coords(img[idx].shape[1:], pred[:, :4], shapes[idx][0], shapes[idx][1])  # native-space pred
++                scale_boxes(img[idx].shape[1:], pred[:, :4], shapes[idx][0], shapes[idx][1])  # native-space pred
+             except:
+                 pred = torch.tensor([[0.0, 0.0, 0.0, 0.0, 0.0, 0.0]])
+             # append to COCO-JSON dictionary
