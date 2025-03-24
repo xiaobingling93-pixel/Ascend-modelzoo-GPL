@@ -22,6 +22,8 @@ ModelZoo-GPL，昇腾旗下的开源AI模型平台，涵盖计算机视觉、自
 # 如何贡献
 
 在开始贡献之前，请先阅读[notice](https://gitee.com/ascend/modelzoo/blob/master/contrib/CONTRIBUTING.md)。谢谢！
+
+【重要】模型训练阶段代码提交规范请阅读 [CONTRIBUTING_TRAIN](./CONTRIBUTING_TRAIN.md)
 					
   
 # 安全声明
