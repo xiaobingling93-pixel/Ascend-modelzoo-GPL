@@ -319,13 +319,13 @@ pip install numpy==1.23.0
 | 1p-NPU | 35.5 | 222.5  |   HF32   |      2.1      | Arm | Atlas 800T A2 |
 | 8p-NPU | 35.5 | 1716.6 |   HF32   |      2.1      | Arm | Atlas 800T A2 |
 
-说明：上表为历史数据，仅供参考。2024年12月31日更新的性能数据如下：
+说明：上表为历史数据，仅供参考。2025年5月10日更新的性能数据如下：
 | NAME | 精度类型 | FPS |
 | :------ |:-------:|:------:|
 | yolov5m 6.0-8p-竞品 | FP16 | 1264 |
-| yolov5m 6.0-8p-Atlas 900 A2 PoDc | FP16 | 2288.1 |
+| yolov5m 6.0-8p-Atlas 900 A2 PoDc | FP16 | 2295.1 |
 | yolov5s 6.0-8p-竞品 | FP16 | 3006.9 |
-| yolov5s 6.0-8p-Atlas 900 A2 PoDc | FP16 | 2937.88 |
+| yolov5s 6.0-8p-Atlas 900 A2 PoDc | FP16 | 3097.8 |
 
 # 版本说明
 
