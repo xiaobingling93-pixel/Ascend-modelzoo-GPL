@@ -85,7 +85,7 @@ diff --git a/ultralytics/nn/modules/head.py b/ultralytics/nn/modules/head.py
 index b9d05024..fa4fc606 100644
 --- a/ultralytics/nn/modules/head.py
 +++ b/ultralytics/nn/modules/head.py
-@@ -102,9 +102,12 @@ class Detect(nn.Module):
+@@ -102,9 +102,9 @@ class Detect(nn.Module):
          # Inference path
          shape = x[0].shape  # BCHW
          x_cat = torch.cat([xi.view(shape[0], self.no, -1) for xi in x], 2)
@@ -98,7 +98,7 @@ index b9d05024..fa4fc606 100644
  
          if self.export and self.format in {"saved_model", "pb", "tflite", "edgetpu", "tfjs"}:  # avoid TF FlexSplitV ops
              box = x_cat[:, : self.reg_max * 4]
-@@ -118,15 +121,15 @@ class Detect(nn.Module):
+@@ -118,15 +118,15 @@ class Detect(nn.Module):
              grid_h = shape[2]
              grid_w = shape[3]
              grid_size = torch.tensor([grid_w, grid_h, grid_w, grid_h], device=box.device).reshape(1, 4, 1)
