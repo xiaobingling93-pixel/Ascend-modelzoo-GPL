@@ -161,7 +161,7 @@ def select_device(device="", batch=0, newline=False, verbose=True):
         device(type='cpu')
 
     Note:
-        Sets the 'CUDA_VISIBLE_DEVICES' environment variable for specifying which GPUs to use.
+        Sets the 'ASCEND_RT_VISIBLE_DEVICES' environment variable for specifying which NPUs to use.
     """
     if isinstance(device, torch.device) or str(device).startswith("tpu"):
         return device
@@ -173,14 +173,14 @@ def select_device(device="", batch=0, newline=False, verbose=True):
     cpu = device == "cpu"
     mps = device in {"mps", "mps:0"}  # Apple Metal Performance Shaders (MPS)
     if cpu or mps:
-        os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # force torch.cuda.is_available() = False
+        os.environ["ASCEND_RT_VISIBLE_DEVICES"] = "-1"  # force torch.cuda.is_available() = False
     elif device:  # non-cpu device requested
         if device == "cuda":
             device = "0"
         if "," in device:
             device = ",".join([x for x in device.split(",") if x])  # remove sequential commas, i.e. "0,,1" -> "0,1"
-        visible = os.environ.get("CUDA_VISIBLE_DEVICES", None)
-        os.environ["CUDA_VISIBLE_DEVICES"] = device  # set environment variable - must be before assert is_available()
+        visible = os.environ.get("ASCEND_RT_VISIBLE_DEVICES", None)
+        os.environ["ASCEND_RT_VISIBLE_DEVICES"] = device  # set environment variable - must be before assert is_available()
         if not (torch.cuda.is_available() and torch.cuda.device_count() >= len(device.split(","))):
             LOGGER.info(s)
             install = (
@@ -195,7 +195,7 @@ def select_device(device="", batch=0, newline=False, verbose=True):
                 f" i.e. 'device=0' or 'device=0,1,2,3' for Multi-GPU.\n"
                 f"\ntorch.cuda.is_available(): {torch.cuda.is_available()}"
                 f"\ntorch.cuda.device_count(): {torch.cuda.device_count()}"
-                f"\nos.environ['CUDA_VISIBLE_DEVICES']: {visible}\n"
+                f"\nos.environ['ASCEND_RT_VISIBLE_DEVICES']: {visible}\n"
                 f"{install}"
             )
 
@@ -521,14 +521,15 @@ class ModelEMA:
     def update(self, model):
         """Update EMA parameters."""
         if self.enabled:
-            self.updates += 1
-            d = self.decay(self.updates)
+            with torch.no_grad():
+                self.updates += 1
+                d = self.decay(self.updates)
+                msd = de_parallel(model).state_dict()  # model state_dict
+                ema_state = self.ema.state_dict()
+                float_keys = [k for k, v in ema_state.items() if v.dtype.is_floating_point]
 
-            msd = de_parallel(model).state_dict()  # model state_dict
-            for k, v in self.ema.state_dict().items():
-                if v.dtype.is_floating_point:  # true for FP16 and FP32
-                    v *= d
-                    v += (1 - d) * msd[k].detach()
+                for k in float_keys:
+                    ema_state[k].mul_(d).add_((1 - d) * msd[k])
                     # assert v.dtype == msd[k].dtype == torch.float32, f'{k}: EMA {v.dtype},  model {msd[k].dtype}'
 
     def update_attr(self, model, include=(), exclude=("process_group", "reducer")):

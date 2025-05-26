@@ -18,6 +18,7 @@ from pathlib import Path
 
 import numpy as np
 import torch
+import torch_npu
 from torch import distributed as dist
 from torch import nn, optim
 
@@ -806,11 +807,11 @@ class BaseTrainer:
                     g[0].append(param)
 
         if name in {"Adam", "Adamax", "AdamW", "NAdam", "RAdam"}:
-            optimizer = getattr(optim, name, optim.Adam)(g[2], lr=lr, betas=(momentum, 0.999), weight_decay=0.0)
+            optimizer = torch_npu.optim.NpuFusedAdam(g[2], lr=lr, betas=(momentum, 0.999), weight_decay=0.0)
         elif name == "RMSProp":
             optimizer = optim.RMSprop(g[2], lr=lr, momentum=momentum)
         elif name == "SGD":
-            optimizer = optim.SGD(g[2], lr=lr, momentum=momentum, nesterov=True)
+            optimizer = torch_npu.optim.NpuFusedSGD(g[2], lr=lr, momentum=momentum, nesterov=True)
         else:
             raise NotImplementedError(
                 f"Optimizer '{name}' not found in list of available optimizers "

@@ -212,12 +212,20 @@ def probiou(obb1, obb2, CIoU=False, eps=1e-7):
     a1, b1, c1 = _get_covariance_matrix(obb1)
     a2, b2, c2 = _get_covariance_matrix(obb2)
 
+    a1_a2_sum = a1 + a2
+    b1_b2_sum = b1 + b2
+    c1_c2_sum = c1 + c2
+    y1_y2_subtraction = y1 - y2
+    x1_x2_subtraction = x1 - x2
+
+    inner_cal_result = a1_a2_sum * b1_b2_sum - c1_c2_sum.pow(2)
+
     t1 = (
-        ((a1 + a2) * (y1 - y2).pow(2) + (b1 + b2) * (x1 - x2).pow(2)) / ((a1 + a2) * (b1 + b2) - (c1 + c2).pow(2) + eps)
+        (a1_a2_sum * y1_y2_subtraction.pow(2) + b1_b2_sum * x1_x2_subtraction.pow(2)) / (inner_cal_result + eps)
     ) * 0.25
-    t2 = (((c1 + c2) * (x2 - x1) * (y1 - y2)) / ((a1 + a2) * (b1 + b2) - (c1 + c2).pow(2) + eps)) * 0.5
+    t2 = ((c1_c2_sum * (x2 - x1) * y1_y2_subtraction) / (inner_cal_result + eps)) * 0.5
     t3 = (
-        ((a1 + a2) * (b1 + b2) - (c1 + c2).pow(2))
+        inner_cal_result
         / (4 * ((a1 * b1 - c1.pow(2)).clamp_(0) * (a2 * b2 - c2.pow(2)).clamp_(0)).sqrt() + eps)
         + eps
     ).log() * 0.5

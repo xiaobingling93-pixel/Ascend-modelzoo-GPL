@@ -4,10 +4,10 @@
 Network="yolov8_ID8340_for_PyTorch"
 
 cur_path=`pwd`
-batch_size=32
+batch_size=256
 epochs=100
-RANK_SIZE=1
-OUT_DIR_NAME="full_1p"
+RANK_SIZE=8
+OUT_DIR_NAME="full_8p"
 
 for para in $*
 do
@@ -18,7 +18,7 @@ do
    fi
 done
 
-ASCEND_DEVICE_ID=0
+ASCEND_DEVICE_ID=0,1,2,3,4,5,6,7
 
 #创建DeviceID输出目录，不需要修改
 if [ -d ${cur_path}/test/output/${OUT_DIR_NAME} ];
@@ -41,7 +41,7 @@ python3 -u train.py --data ./ultralytics/cfg/datasets/DOTAv1.yaml \
                      --batch $batch_size \
                      --data_shuffle \
                      --device $ASCEND_DEVICE_ID \
-                     --epochs $epochs > $cur_path/test/output/${OUT_DIR_NAME}/train_1p.log 2>&1 &
+                     --epochs $epochs > $cur_path/test/output/${OUT_DIR_NAME}/train_8p.log 2>&1 &
 
 wait
 
@@ -51,13 +51,13 @@ echo "end_time: ${end_time}"
 e2e_time=$(( $end_time - $start_time ))
 
 # 计算FPS的平均值
-total_FPS=`grep -oP 'FPS:\K\s*(\d+\.?\d*)' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | tail -n 78 | awk '{sum += $1} END {print sum}'`
+total_FPS=`grep -oP 'FPS:\K\s*(\d+\.?\d*)' ${cur_path}/test/output/$OUT_DIR_NAME/train_8p.log | tail -n 78 | awk '{sum += $1} END {print sum}'`
 averageFPS=$(echo "scale=2; $total_FPS/78" | bc)
 
 # 取mAP50的值
-mAP50=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $7}' |  tail -n1)
+mAP50=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_8p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $7}' |  tail -n1)
 # 取mAP50-95的值
-mAP50_95=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $8}' |  tail -n1)
+mAP50_95=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_8p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $8}' |  tail -n1)
 
 #打印，不需要修改
 echo "Average Performance images/sec : $averageFPS"

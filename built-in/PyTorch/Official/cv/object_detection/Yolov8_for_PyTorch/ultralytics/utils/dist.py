@@ -32,7 +32,15 @@ overrides = {vars(trainer.args)}
 
 if __name__ == "__main__":
     from {module} import {name}
+
+    import torch
+    import torch_npu
+    from torch_npu.contrib import transfer_to_npu
+    
     from ultralytics.utils import DEFAULT_CFG_DICT
+
+    torch.npu.config.allow_internal_format = False
+    torch.npu.set_compile_mode(jit_compile=False)
 
     cfg = DEFAULT_CFG_DICT.copy()
     cfg.update(save_dir='')   # handle the extra key 'save_dir'

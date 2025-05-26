@@ -4,3 +4,4 @@ torchvision==0.16.0
 decorator
 attrs
 opencv-python-headless
+pillow==9.1.0

@@ -771,7 +771,7 @@ class Model(nn.Module):
             "model": self.overrides["model"],
             "task": self.task,
         }  # method defaults
-        args = {**overrides, **custom, **kwargs, "mode": "train", "data_shuffle": kwargs.get("data_shuffle")}  # highest priority args on the right
+        args = {**overrides, **custom, **kwargs, "mode": "train", "data_shuffle": kwargs.get("data_shuffle"), "batch": kwargs.get("batch")}  # highest priority args on the right
         if args.get("resume"):
             args["resume"] = self.ckpt_path
 

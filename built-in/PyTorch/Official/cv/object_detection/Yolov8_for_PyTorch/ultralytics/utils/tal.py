@@ -104,18 +104,21 @@ class TaskAlignedAssigner(nn.Module):
         na = pd_bboxes.shape[-2]
         mask_gt = mask_gt.bool()  # b, max_num_obj, h*w
         overlaps = torch.zeros([self.bs, self.n_max_boxes, na], dtype=pd_bboxes.dtype, device=pd_bboxes.device)
-        bbox_scores = torch.zeros([self.bs, self.n_max_boxes, na], dtype=pd_scores.dtype, device=pd_scores.device)
 
         ind = torch.zeros([2, self.bs, self.n_max_boxes], dtype=torch.long)  # 2, b, max_num_obj
         ind[0] = torch.arange(end=self.bs).view(-1, 1).expand(-1, self.n_max_boxes)  # b, max_num_obj
         ind[1] = gt_labels.squeeze(-1)  # b, max_num_obj
         # Get the scores of each grid for each gt cls
         pd_scores = pd_scores.transpose(-1, -2)
-        bbox_scores[mask_gt] = pd_scores[ind[0], ind[1], :][mask_gt]  # b, max_num_obj, h*w
+        bbox_scores = torch.where(mask_gt, pd_scores[ind[0], ind[1], :], mask_gt)
 
         # (b, max_num_obj, 1, 4), (b, 1, h*w, 4)
-        pd_boxes = pd_bboxes.unsqueeze(1).expand(-1, self.n_max_boxes, -1, -1)[mask_gt]
-        gt_boxes = gt_bboxes.unsqueeze(2).expand(-1, -1, na, -1)[mask_gt]
+        indices = torch.nonzero(mask_gt)
+        id0 = indices[:, 0]
+        id1 = indices[:, 1]
+        id2 = indices[:, 2]
+        pd_boxes = pd_bboxes.unsqueeze(1).expand(-1, self.n_max_boxes, -1, -1)[id0, id1, id2, :]
+        gt_boxes = gt_bboxes.unsqueeze(2).expand(-1, -1, na, -1)[id0, id1, id2, :]
         overlaps[mask_gt] = self.iou_calculation(gt_boxes, pd_boxes)
 
         align_metric = bbox_scores.pow(self.alpha) * overlaps.pow(self.beta)
@@ -201,7 +204,9 @@ class TaskAlignedAssigner(nn.Module):
             dtype=torch.int64,
             device=target_labels.device,
         )  # (b, h*w, 80)
+        target_scores = target_scores.to(dtype=torch.int32)
         target_scores.scatter_(2, target_labels.unsqueeze(-1), 1)
+        target_scores = target_scores.to(dtype=torch.int64)
 
         fg_scores_mask = fg_mask[:, :, None].repeat(1, 1, self.num_classes)  # (b, h*w, 80)
         target_scores = torch.where(fg_scores_mask > 0, target_scores, 0)
@@ -254,7 +259,7 @@ class TaskAlignedAssigner(nn.Module):
         fg_mask = mask_pos.sum(-2)
         if fg_mask.max() > 1:  # one anchor is assigned to multiple gt_bboxes
             mask_multi_gts = (fg_mask.unsqueeze(1) > 1).expand(-1, n_max_boxes, -1)  # (b, n_max_boxes, h*w)
-            max_overlaps_idx = overlaps.argmax(1)  # (b, h*w)
+            max_overlaps_idx = overlaps.transpose(-1, -2).argmax(-1)  # (b, h*w)
 
             is_max_overlaps = torch.zeros(mask_pos.shape, dtype=mask_pos.dtype, device=mask_pos.device)
             is_max_overlaps.scatter_(1, max_overlaps_idx.unsqueeze(1), 1)
@@ -262,7 +267,7 @@ class TaskAlignedAssigner(nn.Module):
             mask_pos = torch.where(mask_multi_gts, is_max_overlaps, mask_pos).float()  # (b, n_max_boxes, h*w)
             fg_mask = mask_pos.sum(-2)
         # Find each grid serve which gt(index)
-        target_gt_idx = mask_pos.argmax(-2)  # (b, h*w)
+        target_gt_idx = mask_pos.transpose(-1, -2).argmax(-1)  # (b, h*w)
         return target_gt_idx, fg_mask, mask_pos
 
 
@@ -296,8 +301,10 @@ class RotatedTaskAlignedAssigner(TaskAlignedAssigner):
         ap = xy_centers - a
         norm_ab = (ab * ab).sum(dim=-1)
         norm_ad = (ad * ad).sum(dim=-1)
-        ap_dot_ab = (ap * ab).sum(dim=-1)
-        ap_dot_ad = (ap * ad).sum(dim=-1)
+        ap_mul_ab = ap * ab
+        ap_mul_ad = ap * ad
+        ap_dot_ab = ap_mul_ab[..., 0] + ap_mul_ab[..., 1]
+        ap_dot_ad = ap_mul_ad[..., 0] + ap_mul_ad[..., 1]
         return (ap_dot_ab >= 0) & (ap_dot_ab <= norm_ab) & (ap_dot_ad >= 0) & (ap_dot_ad <= norm_ad)  # is_in_box
 
 

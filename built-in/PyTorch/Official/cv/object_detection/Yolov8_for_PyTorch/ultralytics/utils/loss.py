@@ -621,17 +621,26 @@ class v8OBBLoss(v8DetectionLoss):
         if targets.shape[0] == 0:
             out = torch.zeros(batch_size, 0, 6, device=self.device)
         else:
-            i = targets[:, 0]  # image index
-            _, counts = i.unique(return_counts=True)
-            counts = counts.to(dtype=torch.int32)
-            out = torch.zeros(batch_size, counts.max(), 6, device=self.device)
-            for j in range(batch_size):
-                matches = i == j
-                n = matches.sum()
-                if n:
-                    bboxes = targets[matches, 2:]
-                    bboxes[..., :4].mul_(scale_tensor)
-                    out[j, :n] = torch.cat([targets[matches, 1:2], bboxes], dim=-1)
+            i = targets[:, 0].float()  # image index
+            unique_i, counts = i.unique(return_counts=True)
+            unique_i = unique_i.to(torch.int32)
+            max_count = counts.max()
+
+            sorted_indices = i.argsort()
+            sorted_targets = targets[sorted_indices]
+
+            row_indices = torch.repeat_interleave(unique_i, counts)
+            col_indices = torch.cat([torch.arange(c, device=i.device) for c in counts])
+
+            scaled_bbox = sorted_targets[:, 2:6] * scale_tensor.reshape(1, 4)
+            processed_data = torch.cat([
+                sorted_targets[:, 1:2],
+                scaled_bbox,
+                sorted_targets[:, 6:]
+            ], dim=1)
+            
+            out = torch.zeros(batch_size, max_count, 6, device=self.device)
+            out[row_indices, col_indices] = processed_data
         return out
 
     def __call__(self, preds, batch):

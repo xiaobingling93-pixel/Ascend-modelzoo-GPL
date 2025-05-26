@@ -32,7 +32,7 @@ export ASCEND_GLOBAL_LOG_LEVEL=3
 #设置Event日志开启标志,0-关闭/1-开启
 export ASCEND_GLOBAL_EVENT_ENABLE=0
 #设置是否开启taskque,0-关闭/1-开启
-export TASK_QUEUE_ENABLE=1
+export TASK_QUEUE_ENABLE=2
 #设置是否开启PTCopy,0-关闭/1-开启
 export PTCOPY_ENABLE=1
 #设置特殊场景是否需要重新编译,不需要修改
@@ -40,4 +40,8 @@ export DYNAMIC_OP="ADD#MUL"
 #HCCL白名单开关,1-关闭/0-开启
 export HCCL_WHITELIST_DISABLE=1
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
+#内存池扩展
+export PYTORCH_NPU_ALLOC_CONF="expandable_segments:True"
+#增大Host侧缓存算子信息条目数
+export ACLNN_CACHE_LIMIT=100000
 

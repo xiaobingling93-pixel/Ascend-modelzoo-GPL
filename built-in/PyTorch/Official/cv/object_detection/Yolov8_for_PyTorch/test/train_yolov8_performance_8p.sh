@@ -4,21 +4,33 @@
 Network="yolov8_ID8340_for_PyTorch"
 
 cur_path=`pwd`
-batch_size=32
-epochs=100
-RANK_SIZE=1
-OUT_DIR_NAME="full_1p"
+batch_size=256
+epochs=10
+RANK_SIZE=8
+OUT_DIR_NAME="performance_8p"
 
 for para in $*
 do
    if [[ $para == --batch_size* ]];then
-      batch_size=`echo ${para#*=}`
+      	batch_size=`echo ${para#*=}`
    elif [[ $para == --epochs* ]];then
-      epochs=`echo ${para#*=}`
+        epochs=`echo ${para#*=}`
    fi
 done
 
-ASCEND_DEVICE_ID=0
+ASCEND_DEVICE_ID=0,1,2,3,4,5,6,7
+
+###############指定训练脚本执行路径###############
+# cd到与test文件夹同层级目录下执行脚本，提高兼容性；test_path_dir为包含test文件夹的路径
+cur_path_last_dirname=${cur_path##*/}
+if [ x"${cur_path_last_dirname}" == x"test" ]; then
+    test_path_dir=${cur_path}
+    cd ..
+    cur_path=$(pwd)
+else
+    test_path_dir=${cur_path}/test
+fi
+
 
 #创建DeviceID输出目录，不需要修改
 if [ -d ${cur_path}/test/output/${OUT_DIR_NAME} ];
@@ -33,15 +45,14 @@ if [ -d ${cur_path}/test/output/${OUT_DIR_NAME} ];
 start_time=$(date +%s)
 echo "start_time: ${start_time}"
 
-source ${cur_path}/test/env_npu.sh
+source ${test_path_dir}/env_npu.sh
 
 python3 -u train.py --data ./ultralytics/cfg/datasets/DOTAv1.yaml \
                       --cfg ./ultralytics/cfg/models/v8/yolov8-obb.yaml \
                      --weights ./yolov8n-obb.pt \
                      --batch $batch_size \
-                     --data_shuffle \
                      --device $ASCEND_DEVICE_ID \
-                     --epochs $epochs > $cur_path/test/output/${OUT_DIR_NAME}/train_1p.log 2>&1 &
+                     --epochs $epochs > $cur_path/test/output/${OUT_DIR_NAME}/train_8p.log 2>&1 &
 
 wait
 
@@ -51,25 +62,19 @@ echo "end_time: ${end_time}"
 e2e_time=$(( $end_time - $start_time ))
 
 # 计算FPS的平均值
-total_FPS=`grep -oP 'FPS:\K\s*(\d+\.?\d*)' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | tail -n 78 | awk '{sum += $1} END {print sum}'`
-averageFPS=$(echo "scale=2; $total_FPS/78" | bc)
-
-# 取mAP50的值
-mAP50=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $7}' |  tail -n1)
-# 取mAP50-95的值
-mAP50_95=$(grep -w 'all' ${cur_path}/test/output/$OUT_DIR_NAME/train_1p.log | awk -F "all" '{print $2}' | awk -F "    " '{print $8}' |  tail -n1)
+num_FPS=$(grep -c 'FPS:' ${cur_path}/test/output/$OUT_DIR_NAME/train_8p.log)
+total_FPS=`grep -oP 'FPS:\K\s*(\d+\.?\d*)' ${cur_path}/test/output/$OUT_DIR_NAME/train_8p.log | tail -n $num_FPS | awk '{sum += $1} END {print sum}'`
+averageFPS=$(echo "scale=2; $total_FPS/$num_FPS" | bc)
 
 #打印，不需要修改
 echo "Average Performance images/sec : $averageFPS"
-echo "mAP50 : $mAP50"
-echo "mAP50-95 : $mAP50_95"
 echo "E2E Training Duration sec : $e2e_time"
 
 #稳定性精度看护结果汇总
 #训练用例信息，不需要修改
 BatchSize=${batch_size}
 DeviceType=`uname -m`
-CaseName=${Network}_bs${BatchSize}_${RANK_SIZE}'p'_'acc'
+CaseName=${Network}_bs${BatchSize}_${RANK_SIZE}'p'_'perf'
 
 ##获取性能数据，不需要修改
 #单迭代训练时长
@@ -81,8 +86,7 @@ echo "RankSize = ${RANK_SIZE}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName
 echo "BatchSize = ${BatchSize}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
 echo "DeviceType = ${DeviceType}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
 echo "CaseName = ${CaseName}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
-echo "averageFPS = ${averageFPS}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
-echo "mAP50 = ${mAP50}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
-echo "mAP50-95 = ${mAP50_95}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
+echo "AverageFPS = ${averageFPS}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
 echo "TrainingTime = ${TrainingTime}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
 echo "E2ETrainingTime = ${e2e_time}" >> $cur_path/test/output/$OUT_DIR_NAME/${CaseName}.log
+rm -rf $data_path/labels/*.cache
