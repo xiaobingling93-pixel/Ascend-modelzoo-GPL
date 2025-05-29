@@ -81,6 +81,7 @@
 - [Yolov5s_for_PyTorch_v6.0(HF32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
 - [Yolov5m_for_PyTorch_v6.0(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
 - [Yolov7_for_PyTorch(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov7_for_PyTorch)
+- [Yolov8_for_PyTorch(FP32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov8_for_PyTorch)
 
 ### 不随版本演进模型
 
