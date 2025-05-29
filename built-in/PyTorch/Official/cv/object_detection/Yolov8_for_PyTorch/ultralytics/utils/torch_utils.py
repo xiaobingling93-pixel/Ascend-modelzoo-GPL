@@ -179,8 +179,6 @@ def select_device(device="", batch=0, newline=False, verbose=True):
             device = "0"
         if "," in device:
             device = ",".join([x for x in device.split(",") if x])  # remove sequential commas, i.e. "0,,1" -> "0,1"
-        visible = os.environ.get("ASCEND_RT_VISIBLE_DEVICES", None)
-        os.environ["ASCEND_RT_VISIBLE_DEVICES"] = device  # set environment variable - must be before assert is_available()
         if not (torch.cuda.is_available() and torch.cuda.device_count() >= len(device.split(","))):
             LOGGER.info(s)
             install = (
@@ -195,7 +193,6 @@ def select_device(device="", batch=0, newline=False, verbose=True):
                 f" i.e. 'device=0' or 'device=0,1,2,3' for Multi-GPU.\n"
                 f"\ntorch.cuda.is_available(): {torch.cuda.is_available()}"
                 f"\ntorch.cuda.device_count(): {torch.cuda.device_count()}"
-                f"\nos.environ['ASCEND_RT_VISIBLE_DEVICES']: {visible}\n"
                 f"{install}"
             )
 

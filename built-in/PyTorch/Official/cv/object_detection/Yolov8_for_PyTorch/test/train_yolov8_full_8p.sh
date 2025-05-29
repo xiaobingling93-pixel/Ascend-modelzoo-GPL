@@ -19,6 +19,7 @@ do
 done
 
 ASCEND_DEVICE_ID=0,1,2,3,4,5,6,7
+export ASCEND_RT_VISIBLE_DEVICES=$ASCEND_DEVICE_ID
 
 #创建DeviceID输出目录，不需要修改
 if [ -d ${cur_path}/test/output/${OUT_DIR_NAME} ];
