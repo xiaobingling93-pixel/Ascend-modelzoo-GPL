@@ -282,6 +282,7 @@ if __name__ == '__main__':
     parser.add_argument('--iou-thres', type=float, default=0.65, help='IOU threshold for NMS')
     parser.add_argument('--device', type=int, default=0, help='device id')
     parser.add_argument('--eval', action='store_true', help='compute mAP')
+    parser.add_argument('--visible', action='store_true', help='show pictures')
     args = parser.parse_args()
 
     if args.visible:
