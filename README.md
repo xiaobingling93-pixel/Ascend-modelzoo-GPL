@@ -68,6 +68,9 @@ ModelZoo-GPL，昇腾旗下的开源AI模型平台，涵盖计算机视觉、自
 
 详见各模型目录下的public_address_statement.md
 
+## 公开接口声明
+
+ModelZoo-GPL仅提供模型代码，不涉及构建打包发布，无公开接口，需按模型文档介绍，通过模型内shell脚本使用。
 
 # 免责声明
 
