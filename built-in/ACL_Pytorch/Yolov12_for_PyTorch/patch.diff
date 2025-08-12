@@ -1,0 +1,20 @@
+--- ./yolov12/ultralytics/engine/validator.py	2025-08-11 17:42:07.808409600 +0800
++++ ./yolov12/ultralytics/engine/validator.py	2025-08-11 17:42:43.493214700 +0800
+@@ -125,7 +125,7 @@
+             callbacks.add_integration_callbacks(self)
+             model = AutoBackend(
+                 weights=model or self.args.model,
+-                device=select_device(self.args.device, self.args.batch),
++                device=torch.device("npu"),
+                 dnn=self.args.dnn,
+                 data=self.args.data,
+                 fp16=self.args.half,
+@@ -156,7 +156,7 @@
+             self.dataloader = self.dataloader or self.get_dataloader(self.data.get(self.args.split), self.args.batch)
+ 
+             model.eval()
+-            model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
++            model.warmup(imgsz=(self.args.batch, 3, imgsz, imgsz))  # warmup
+ 
+         self.run_callbacks("on_val_start")
+         dt = (

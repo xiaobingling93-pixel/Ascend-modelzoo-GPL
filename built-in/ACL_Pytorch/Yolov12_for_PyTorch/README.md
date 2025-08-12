@@ -33,7 +33,7 @@
   | CANN                                                    | 8.1.0         | -                                                                                             |
   | Python                                                  | 3.11          | -                                                                                             |
   | PyTorch                                                 | 2.4.0         | -                                                                                             |
-  | Ascend Extension PyTorch                                | 2.1.0.post8   | -                                                                                             |
+  | Ascend Extension PyTorch                                | 2.4.0         | -                                                                                             |
   | 说明：Atlas 800I A2/Atlas 300I Pro 推理卡请以CANN版本选择实际固件与驱动版本。 | \             | \                                                                                             |
 
 # 快速上手
@@ -86,10 +86,10 @@
    ```
    yolov12
    └── coco_converted
-     ├── image
+     ├── images
            └── val2017
                └── ***.jpg
-     └── label
+     └── labels
          └── val2017
                  └── ***.txt
    ```
@@ -110,6 +110,11 @@ wget https://github.com/sunsmarterjie/yolov12/releases/download/turbo/yolov12l.p
 source /usr/local/Ascend/ascend-toolkit/set_env.sh
 ```
 
+修改 ultralytics/engine/validator.py 部分源码
+```
+patch -p2 < ../diff.patch
+```
+
 运行推理脚本infer.py
 
 ```
@@ -128,8 +133,7 @@ python3 infer.py --pth=yolov12l.pt --dataset=ultralytics/cfg/datasets/coco.yaml 
 以bs16在数据集上的推理为例
 |模型|芯片|性能(per image)|精度(mAP)|
 |------|------|------|------|
-|yolo12l|800I A2|4.98ms|54.0|
+|yolo12l|800I A2|5.3ms|54.0|
 
 注：该模型支持动态shape数据集推理，输入shape长边会处理为640，短边以原尺寸scale
 
-注：性能测试是在模型推理前后打点，使用数据集内前16张图进行bs16的1000次推理后计算时间差，取的单图平均值

@@ -31,7 +31,7 @@
   | ------------------------------------------------------- | ----------- | --------------------------------------------------------------------------------------------- |
   | 固件与驱动                                                   | 24.0.RC3    | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies) |
   | CANN                                                    | 8.1.0       | -                                                                                             |
-  | Python                                                  | 3.8         | -                                                                                             |
+  | Python                                                  | 3.11        | -                                                                                             |
   | PyTorch                                                 | 2.1.0       | -                                                                                             |
   | Ascend Extension PyTorch                                | 2.1.0.post8 | -                                                                                             |
   | 说明：Atlas 800I A2/Atlas 300I Pro 推理卡请以CANN版本选择实际固件与驱动版本。 | \           | \                                                                                             |
@@ -59,7 +59,7 @@
 
 ## 获取数据集
 
-1. 新建datasets文件夹，下载COCO-2017数据集的[图片](https://gitee.com/link?target=http%3A%2F%2Fimages.cocodataset.org%2Fzips%2Fval2017.zip)与[标注](https://gitee.com/link?target=http%3A%2F%2Fimages.cocodataset.org%2Fannotations%2Fannotations_trainval2017.zip)，放置datasets目录下
+1. 新建dataset文件夹，下载COCO-2017数据集的[图片](https://gitee.com/link?target=http%3A%2F%2Fimages.cocodataset.org%2Fzips%2Fval2017.zip)与[标注](https://gitee.com/link?target=http%3A%2F%2Fimages.cocodataset.org%2Fannotations%2Fannotations_trainval2017.zip)，放置dataset目录下
    
    ```
    ultralytics
@@ -70,7 +70,7 @@
 2. 利用dataset.py脚本，将数据集转化为YOLO仓支持的格式
    
    ```bash
-   python3 dataset.py --data_path=./coco/annotations/
+   python3 dataset.py --data_path=./ultralytics/dataset/coco-2017/annotations/
    ```
 - 参数说明
   - data_path: coco数据集annotations目录，须保证annotations目录下只有instances_val2017.json
@@ -80,7 +80,7 @@
 3. 移动image文件夹到coco_converted内
    
    ```
-   mv coco/val2017 coco_converted/image
+   mv ultralytics/dataset/coco-2017/val2017 coco_converted/images
    ```
    
    完成后数据集结构如下
@@ -88,10 +88,10 @@
    ```
    dataset
    └── coco_converted
-      ├── image
+      ├── images
             └── val2017
                 └── ***.jpg
-      └── label
+      └── labels
           └── val2017
                   └── ***.txt
    ```
@@ -106,7 +106,7 @@ wget https://github.com/ultralytics/assets/releases/download/v8.3.0/yolo11l.pt
 
 ## 执行推理
 
-前往ultralytics/cfg/datasets/coco.yaml中修改line12的值为coco_converted的绝对地址，并修改line14的值为images/val2017。随后运行推理脚本infer.py
+前往ultralytics/ultralytics/cfg/datasets/coco.yaml中修改line12的值为coco_converted的绝对地址，并修改line14的值为images/val2017。随后运行推理脚本infer.py
 
 ```
 python3 infer.py --pth=yolo11l.pt --dataset=coco.yaml --batchsize=16
