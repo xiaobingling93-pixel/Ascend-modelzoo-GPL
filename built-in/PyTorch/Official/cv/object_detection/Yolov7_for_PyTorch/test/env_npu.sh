@@ -30,6 +30,8 @@ export HCCL_WHITELIST_DISABLE=1
 export HCCL_CONNECT_TIMEOUT=3600
 export HCCL_EXEC_TIMEOUT=3600
 export HCCL_IF_IP=$(hostname -I |awk '{print $1}')
+#禁用WANDB日志功能
+export WANDB_DISABLED=1
 
 ulimit -SHn 512000
 
