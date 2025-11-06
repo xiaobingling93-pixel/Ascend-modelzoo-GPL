@@ -330,7 +330,7 @@ class ModelEMA:
 
         self.is_fused = False
 
-    def update(self, model, device, model_params_fused=None):
+    def update(self, model, device, model_params_fused=None, ema_all_params=None):
         # Update EMA parameters
         with torch.no_grad():
             self.updates += 1
@@ -347,17 +347,6 @@ class ModelEMA:
 
                 if not self.is_fused:
 
-                    # this process needs special attention, the order of params should be identical to model
-                    g0, g1, g2 = [], [], []  # optimizer parameter groups
-                    for v in self.ema.modules():
-                        if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):  # bias
-                            g2.append(v.bias)
-                        if isinstance(v, nn.BatchNorm2d):  # weight (no decay)
-                            g0.append(v.weight)
-                        elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
-                            g1.append(v.weight)
-
-                    ema_all_params = g0 + g1 + g2
                     self.ema_params_fused = combine_npu(ema_all_params)
 
                     ema_all_buffers = []

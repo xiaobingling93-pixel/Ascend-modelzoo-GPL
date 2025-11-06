@@ -173,13 +173,21 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
         LOGGER.info(f"Scaled weight_decay = {hyp['weight_decay']}")
 
     g0, g1, g2 = [], [], []  # optimizer parameter groups
-    for v in model.modules():
-        if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):  # bias
-            g2.append(v.bias)
-        if isinstance(v, nn.BatchNorm2d):  # weight (no decay)
-            g0.append(v.weight)
-        elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):  # weight (with decay)
-            g1.append(v.weight)
+    seen_params = set()
+    for name, param in model.named_parameters():
+        if not param.requires_grad:
+            continue
+        if id(param) in seen_params:
+            continue
+        seen_params.add(id(param))
+        if '.bias' in name:
+            g2.append(param)
+        elif isinstance(model.get_submodule(name.rsplit('.', 1)[0]), nn.BatchNorm2d):
+            g0.append(param)
+        else:
+            g1.append(param)
+    
+    ema_all_params = g0 + g1 + g2
 
     optimizer = None
     if opt.adam:
@@ -389,7 +397,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
                             params_fp32_fused = optimizer.get_model_combined_params()
                         elif os.environ["use_amp"] in ["native", "false"]:
                             params_fp32_fused = optimizer.get_combined_params()
-                        ema.update(model, device, params_fp32_fused[0])
+                        ema.update(model, device, params_fp32_fused[0], ema_all_params)
                     else:
                         ema.update(model, device)
                 last_opt_step = ni

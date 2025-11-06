@@ -277,6 +277,7 @@ pip install numpy==1.23.0
    --save-period                       //权重保存
    --native_amp                        //使用torch amp进行混合精度训练，如不配置默认使用apex
    --half                              //eval执行脚本中参数，如配置默认使用混合精度计算
+   --freeze                            //支持冻结权重训练
    ```
    
    训练完成后，权重文件保存在当前路径下，并输出模型训练精度和性能信息。
