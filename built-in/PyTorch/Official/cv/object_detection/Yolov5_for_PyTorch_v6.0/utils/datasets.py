@@ -141,6 +141,7 @@ def create_dataloader(path, imgsz, batch_size, stride, single_cls=False, hyp=Non
                         worker_init_fn=seed_worker if high_preci else None,
                         generator=generator if high_preci else None,
                         collate_fn=LoadImagesAndLabels.collate_fn4 if quad else LoadImagesAndLabels.collate_fn,
+                        shuffle=False,
                         **kwargs)
     return dataloader, dataset
 

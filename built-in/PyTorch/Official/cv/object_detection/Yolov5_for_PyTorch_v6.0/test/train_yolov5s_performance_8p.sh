@@ -64,6 +64,7 @@ echo "start_time: ${start_time}"
 export MASTER_ADDR=127.0.0.1
 export MASTER_PORT=29500
 export WORLD_SIZE=8
+export high_preci=true
 
 for i in $(seq 0 7)
 do

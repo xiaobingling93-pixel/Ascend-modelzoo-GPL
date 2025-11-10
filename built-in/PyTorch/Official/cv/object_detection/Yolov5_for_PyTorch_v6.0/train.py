@@ -88,6 +88,7 @@ def seed_everything():
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 
 def train(hyp,  # path/to/hyp.yaml or hyp dictionary
@@ -132,7 +133,7 @@ def train(hyp,  # path/to/hyp.yaml or hyp dictionary
     # Config
     plots = not evolve  # create plots
     npu = device.type != 'cpu'
-    init_seeds(1 + RANK)
+
     with torch_distributed_zero_first(LOCAL_RANK):
         data_dict = data_dict or check_dataset(data)  # check if None
     train_path, val_path = data_dict['train'], data_dict['val']
@@ -649,6 +650,7 @@ def main(opt, callbacks=Callbacks()):
 
 def run(**kwargs):
     # Usage: import train; train.run(data='coco128.yaml', imgsz=320, weights='yolov5m.pt')
+    seed_everything()
     opt = parse_opt(True)
     for k, v in kwargs.items():
         setattr(opt, k, v)
