@@ -1,34 +1,476 @@
----
- ultralytics/engine/validator.py |  7 ++++++-
- ultralytics/nn/autobackend.py   | 10 ++++++++++
- ultralytics/nn/modules/block.py | 11 +++++++++--
- ultralytics/nn/modules/head.py  | 17 ++++++++++-------
- ultralytics/utils/tal.py        |  3 ++-
- 5 files changed, 37 insertions(+), 11 deletions(-)
-
+diff --git a/ultralytics/cfg/datasets/coco-pose.yaml b/ultralytics/cfg/datasets/coco-pose.yaml
+index 353dcd721..fd172738c 100644
+--- a/ultralytics/cfg/datasets/coco-pose.yaml
++++ b/ultralytics/cfg/datasets/coco-pose.yaml
+@@ -33,7 +33,5 @@ download: |
+   urls = [url + 'coco2017labels-pose.zip']  # labels
+   download(urls, dir=dir.parent)
+   # Download data
+-  urls = ['http://images.cocodataset.org/zips/train2017.zip',  # 19G, 118k images
+-          'http://images.cocodataset.org/zips/val2017.zip',  # 1G, 5k images
+-          'http://images.cocodataset.org/zips/test2017.zip']  # 7G, 41k images (optional)
++  urls = ['https://images.cocodataset.org/zips/val2017.zip']  # 1G, 5k images
+   download(urls, dir=dir / 'images', threads=3)
+diff --git a/ultralytics/cfg/datasets/coco.yaml b/ultralytics/cfg/datasets/coco.yaml
+index cb6dff744..a7c8ed007 100644
+--- a/ultralytics/cfg/datasets/coco.yaml
++++ b/ultralytics/cfg/datasets/coco.yaml
+@@ -6,10 +6,10 @@
+ # parent
+ # ├── ultralytics
+ # └── datasets
+-#     └── coco  ← downloads here (20.1 GB)
++#     └── coco ← downloads here (20.1 GB)
+ 
+ # Train/val/test sets as 1) dir: path/to/imgs, 2) file: path/to/imgs.txt, or 3) list: [path/to/imgs1, path/to/imgs2, ..]
+-path: ../datasets/coco # dataset root dir
++path: coco # dataset root dir
+ train: train2017.txt # train images (relative to 'path') 118287 images
+ val: val2017.txt # val images (relative to 'path') 5000 images
+ test: test-dev2017.txt # 20288 of 40670 images, submit to https://competitions.codalab.org/competitions/20794
+@@ -99,17 +99,18 @@ names:
+ 
+ # Download script/URL (optional)
+ download: |
+-  from ultralytics.utils.downloads import download
+   from pathlib import Path
+ 
++  from ultralytics.utils import ASSETS_URL
++  from ultralytics.utils.downloads import download
++
+   # Download labels
+   segments = True  # segment or box labels
+-  dir = Path(yaml['path'])  # dataset root dir
+-  url = 'https://github.com/ultralytics/assets/releases/download/v0.0.0/'
+-  urls = [url + ('coco2017labels-segments.zip' if segments else 'coco2017labels.zip')]  # labels
++  dir = Path(yaml["path"])  # dataset root dir
++  urls = [ASSETS_URL + ("/coco2017labels-segments.zip" if segments else "/coco2017labels.zip")]  # labels
+   download(urls, dir=dir.parent)
+   # Download data
+-  urls = ['http://images.cocodataset.org/zips/train2017.zip',  # 19G, 118k images
+-          'http://images.cocodataset.org/zips/val2017.zip',  # 1G, 5k images
+-          'http://images.cocodataset.org/zips/test2017.zip']  # 7G, 41k images (optional)
+-  download(urls, dir=dir / 'images', threads=3)
++  urls = [
++      "https://images.cocodataset.org/zips/val2017.zip",  # 1G, 5k images
++  ]
++  download(urls, dir=dir / "images", threads=3)
+\ No newline at end of file
+diff --git a/ultralytics/data/scripts/get_imagenet.sh b/ultralytics/data/scripts/get_imagenet.sh
+index d6650a2d0..6c683cd16 100755
+--- a/ultralytics/data/scripts/get_imagenet.sh
++++ b/ultralytics/data/scripts/get_imagenet.sh
+@@ -26,7 +26,7 @@ mkdir -p $d && cd $d
+ 
+ # Download/unzip train
+ if [ "$train" == "true" ]; then
+-  wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar # download 138G, 1281167 images
++  wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar # Perhaps some security work needs to be done to ensure that it can be downloaded correctly.
+   mkdir train && mv ILSVRC2012_img_train.tar train/ && cd train
+   tar -xf ILSVRC2012_img_train.tar && rm -f ILSVRC2012_img_train.tar
+   find . -name "*.tar" | while read NAME; do
+@@ -39,9 +39,9 @@ fi
+ 
+ # Download/unzip val
+ if [ "$val" == "true" ]; then
+-  wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar # download 6.3G, 50000 images
++  wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar # Perhaps some security work needs to be done to ensure that it can be downloaded correctly.
+   mkdir val && mv ILSVRC2012_img_val.tar val/ && cd val && tar -xf ILSVRC2012_img_val.tar
+-  wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash # move into subdirs
++  wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash # Perhaps some security work needs to be done to ensure that it can be downloaded correctly.
+ fi
+ 
+ # Delete corrupted image (optional: PNG under JPEG name that may cause dataloaders to fail)
+diff --git a/ultralytics/data/utils.py b/ultralytics/data/utils.py
+index 20a7b98ed..2a12676fd 100644
+--- a/ultralytics/data/utils.py
++++ b/ultralytics/data/utils.py
+@@ -423,7 +423,8 @@ def check_cls_dataset(dataset, split=""):
+         LOGGER.warning(f"\nDataset not found ⚠️, missing path {data_dir}, attempting download...")
+         t = time.time()
+         if str(dataset) == "imagenet":
+-            subprocess.run(f"bash {ROOT / 'data/scripts/get_imagenet.sh'}", shell=True, check=True)
++            #subprocess.run(f"bash {ROOT / 'data/scripts/get_imagenet.sh'}", shell=True, check=True)
++            subprocess.run(f"bash {ROOT / 'data/scripts/get_imagenet.sh --val'}", shell=True, check=True)
+         else:
+             url = f"https://github.com/ultralytics/assets/releases/download/v0.0.0/{dataset}.zip"
+             download(url, dir=data_dir.parent)
+@@ -442,9 +443,14 @@ def check_cls_dataset(dataset, split=""):
+         LOGGER.warning("WARNING ⚠️ Dataset 'split=val' not found, using 'split=test' instead.")
+     elif split == "test" and not test_set:
+         LOGGER.warning("WARNING ⚠️ Dataset 'split=test' not found, using 'split=val' instead.")
+-
+-    nc = len([x for x in (data_dir / "train").glob("*") if x.is_dir()])  # number of classes
+-    names = [x.name for x in (data_dir / "train").iterdir() if x.is_dir()]  # class names list
++    if val_set and val_set.exists() and any(val_set.glob("*")):
++        nc = len([x for x in val_set.glob("*") if x.is_dir()])
++        names = [x.name for x in val_set.iterdir() if x.is_dir()]
++    elif train_set and train_set.exists() and any(train_set.glob('*')):
++        nc = len([x for x in train_set.glob("*") if x.is_dir()])
++        names = [x.name for x in train_set.iterdir() if x.is_dir()]
++    else:
++        raise FileNotFoundError(f"Neither train nor val directory found in {data_dir}")
+     names = dict(enumerate(sorted(names)))
+ 
+     # Print to console
+@@ -457,7 +463,9 @@ def check_cls_dataset(dataset, split=""):
+             nf = len(files)  # number of files
+             nd = len({file.parent for file in files})  # number of directories
+             if nf == 0:
+-                if k == "train":
++                if k == "train" and val_set and val_set.exists():
++                    LOGGER.info(f"{prefix} no training images found (validation only setup)")
++                elif k == "train":
+                     raise FileNotFoundError(emojis(f"{dataset} '{k}:' no training images found ❌ "))
+                 else:
+                     LOGGER.warning(f"{prefix} found {nf} images in {nd} classes: WARNING ⚠️ no images found")
+diff --git a/ultralytics/engine/exporter.py b/ultralytics/engine/exporter.py
+index 099ee4559..2e34b43e2 100644
+--- a/ultralytics/engine/exporter.py
++++ b/ultralytics/engine/exporter.py
+@@ -126,6 +126,7 @@ def export_formats():
+         ["NCNN", "ncnn", "_ncnn_model", True, True, ["batch", "half"]],
+         ["IMX", "imx", "_imx_model", True, True, ["int8"]],
+         ["RKNN", "rknn", "_rknn_model", False, False, ["batch", "name"]],
++        ["OM", "om", ".om", False, True, []],
+     ]
+     return dict(zip(["Format", "Argument", "Suffix", "CPU", "GPU", "Arguments"], zip(*x)))
+ 
+@@ -230,7 +231,7 @@ class Exporter:
+         flags = [x == fmt for x in fmts]
+         if sum(flags) != 1:
+             raise ValueError(f"Invalid export format='{fmt}'. Valid formats are {fmts}")
+-        (jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs, paddle, mnn, ncnn, imx, rknn) = (
++        (jit, onnx, xml, engine, coreml, saved_model, pb, tflite, edgetpu, tfjs, paddle, mnn, ncnn, imx, rknn, om) = (
+             flags  # export booleans
+         )
+ 
+@@ -433,6 +434,8 @@ class Exporter:
+             f[13], _ = self.export_imx()
+         if rknn:
+             f[14], _ = self.export_rknn()
++        if om:
++            raise NotImplementedError("OM export is not supported yet. Please use ATC tool to convert ONNX models to OM format mannually.")
+ 
+         # Finish
+         f = [str(x) for x in f if x]  # filter out '' and None
 diff --git a/ultralytics/engine/validator.py b/ultralytics/engine/validator.py
-index 42c0e329..0f46395e 100644
+index 42c0e329b..088c9d6ac 100644
 --- a/ultralytics/engine/validator.py
 +++ b/ultralytics/engine/validator.py
-@@ -158,7 +158,12 @@ class BaseValidator:
+@@ -132,7 +132,7 @@ class BaseValidator:
+                 data=self.args.data,
+                 fp16=self.args.half,
+             )
+-            # self.model = model
++            self.model = model
+             self.device = model.device  # update device
+             self.args.half = model.fp16  # update half
+             stride, pt, jit, engine = model.stride, model.pt, model.jit, model.engine
+@@ -150,6 +150,7 @@ class BaseValidator:
+             else:
+                 raise FileNotFoundError(emojis(f"Dataset '{self.args.data}' for task={self.args.task} not found ❌"))
+ 
++
+             if self.device.type in {"cpu", "mps"}:
+                 self.args.workers = 0  # faster CPU val as time dominated by inference, not dataloading
+             if not pt:
+@@ -158,7 +159,11 @@ class BaseValidator:
              self.dataloader = self.dataloader or self.get_dataloader(self.data.get(self.args.split), self.args.batch)
  
              model.eval()
 -            model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
-+            # model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
-+            # 新增warmup，保证性能准确
 +            print('start warm up')
 +            model.warmup(imgsz=(self.args.batch, 3, imgsz, imgsz))  # warmup
-+            model.warmup(imgsz=(self.args.batch, 3, 288, imgsz))  # warmup
++            if not getattr(model, 'om', False):
++                model.warmup(imgsz=(self.args.batch, 3, 288, imgsz))  # warmup
 +            print('end warm up')
  
          self.run_callbacks("on_val_start")
          dt = (
+@@ -167,9 +172,78 @@ class BaseValidator:
+             Profile(device=self.device),
+             Profile(device=self.device),
+         )
+-        bar = TQDM(self.dataloader, desc=self.get_desc(), total=len(self.dataloader))
++
++        if getattr(self.model, 'om') and getattr(self.args, 'batch', 0) > 1:
++            # Count dataset size by reading the split file directly
++            dataset_size = 0
++            split_file = None
++
++            def count_images_in_directory(directory):
++                """Count jpg images in a directory"""
++                try:
++                    if not directory.exists():
++                        print(f"Warning: Directory {directory} does not exist")
++                        return 0
++
++                    # Count .jpg and .jpeg files (case insensitive)
++                    jpg_count = len([f for f in directory.iterdir()
++                                   if f.is_file() and f.suffix.lower() in ['.jpg', '.jpeg']])
++                    return jpg_count
++                except Exception as e:
++                    print(f"Warning: Could not count images in directory {directory}: {e}")
++                    return 0
++
++            # Try to get the split file path from dataset configuration
++            if self.args.split in self.data:
++                split_path = self.data[self.args.split]
++
++                if isinstance(split_path, str) and split_path.endswith('.txt'):
++                    # Handle relative paths from dataset yaml
++                    data_root = Path(self.args.data).parent
++                    split_file = data_root / split_path
++                elif isinstance(split_path, Path) and split_path.suffix == '.txt':
++                    split_file = split_path
++                # Handle directory-based splits (like DOTA)
++                elif isinstance(split_path, str):
++                    # Handle relative directory paths, like "images/val"
++                    data_root = Path(self.args.data).parent
++                    split_dir = data_root / split_path
++                    dataset_size = count_images_in_directory(split_dir)
++                    if dataset_size > 0:
++                        print(f"Dataset size counted from directory {split_dir}: {dataset_size} images")
++                elif isinstance(split_path, Path):
++                    # Handle Path object directories
++                    dataset_size = count_images_in_directory(split_path)
++                    if dataset_size > 0:
++                        print(f"Dataset size counted from directory {split_path}: {dataset_size} images")
++
++            # Read the split file to count images
++            if split_file and split_file.exists():
++                try:
++                    with open(split_file, 'r') as f:
++                        dataset_size = len([line.strip() for line in f if line.strip()])
++                    print(f"Dataset size counted from {split_file}: {dataset_size} images")
++                except Exception as e:
++                    print(f"Warning: Could not count dataset size from {split_file}: {e}")
++                    dataset_size = 0
++
++            # Check divisibility and set drop_last if needed
++            if dataset_size > 0 and dataset_size % self.args.batch != 0:
++                print(f"Dataset size ({dataset_size}) is not divisible by batch size ({self.args.batch})")
++                print(f"Enabling drop_last to avoid incomplete final batch for OM model")
++                from itertools import islice
++                total_batches = max(0, len(self.dataloader) - 1)
++                truncated_dataloader = islice(self.dataloader, total_batches)
++                bar = TQDM(truncated_dataloader, desc=self.get_desc(), total=total_batches)
++
++            else:
++                bar = TQDM(self.dataloader, desc=self.get_desc(), total=len(self.dataloader))
++        else:
++            bar = TQDM(self.dataloader, desc=self.get_desc(), total=len(self.dataloader))
++
+         self.init_metrics(de_parallel(model))
+         self.jdict = []  # empty before each val
++
+         for batch_i, batch in enumerate(bar):
+             self.run_callbacks("on_val_batch_start")
+             self.batch_i = batch_i
+diff --git a/ultralytics/models/yolo/classify/val.py b/ultralytics/models/yolo/classify/val.py
+index 51aa01f48..b9bc9c259 100644
+--- a/ultralytics/models/yolo/classify/val.py
++++ b/ultralytics/models/yolo/classify/val.py
+@@ -48,9 +48,14 @@ class ClassificationValidator(BaseValidator):
+ 
+     def preprocess(self, batch):
+         """Preprocesses input batch and returns it."""
+-        batch["img"] = batch["img"].to(self.device, non_blocking=True)
++        if getattr(self.model, 'om'):
++            target_device = torch.device('cpu')
++        else:
++            target_device = self.device
++
++        batch["img"] = batch["img"].to(target_device, non_blocking=True)
+         batch["img"] = batch["img"].half() if self.args.half else batch["img"].float()
+-        batch["cls"] = batch["cls"].to(self.device)
++        batch["cls"] = batch["cls"].to(target_device)
+         return batch
+ 
+     def update_metrics(self, preds, batch):
+diff --git a/ultralytics/models/yolo/detect/val.py b/ultralytics/models/yolo/detect/val.py
+index ec809d55f..4ba785bad 100644
+--- a/ultralytics/models/yolo/detect/val.py
++++ b/ultralytics/models/yolo/detect/val.py
+@@ -49,10 +49,14 @@ class DetectionValidator(BaseValidator):
+ 
+     def preprocess(self, batch):
+         """Preprocesses batch of images for YOLO training."""
+-        batch["img"] = batch["img"].to(self.device, non_blocking=True)
++        if getattr(self.model, 'om'):
++            target_device = torch.device('cpu')
++        else:
++            target_device = self.device
++        batch["img"] = batch["img"].to(target_device, non_blocking=True)#batch["img"] = batch["img"].to(self.device, non_blocking=True)
+         batch["img"] = (batch["img"].half() if self.args.half else batch["img"].float()) / 255
+         for k in ["batch_idx", "cls", "bboxes"]:
+-            batch[k] = batch[k].to(self.device)
++            batch[k] = batch[k].to(target_device)#batch[k] = batch[k].to(self.device)
+ 
+         if self.args.save_hybrid:
+             height, width = batch["img"].shape[2:]
+@@ -114,13 +118,16 @@ class DetectionValidator(BaseValidator):
+         imgsz = batch["img"].shape[2:]
+         ratio_pad = batch["ratio_pad"][si]
+         if len(cls):
+-            bbox = ops.xywh2xyxy(bbox) * torch.tensor(imgsz, device=self.device)[[1, 0, 1, 0]]  # target boxes
++            device = torch.device('cpu') if getattr(self.model, 'om') else self.device
++            bbox = ops.xywh2xyxy(bbox) * torch.tensor(imgsz, device=device)[[1, 0, 1, 0]]  # target boxes
+             ops.scale_boxes(imgsz, bbox, ori_shape, ratio_pad=ratio_pad)  # native-space labels
+         return {"cls": cls, "bbox": bbox, "ori_shape": ori_shape, "imgsz": imgsz, "ratio_pad": ratio_pad}
+ 
+     def _prepare_pred(self, pred, pbatch):
+         """Prepares a batch of images and annotations for validation."""
+         predn = pred.clone()
++        if getattr(self.model, 'om'):
++            predn = predn.cpu()
+         ops.scale_boxes(
+             pbatch["imgsz"], predn[:, :4], pbatch["ori_shape"], ratio_pad=pbatch["ratio_pad"]
+         )  # native-space pred
+@@ -128,13 +135,14 @@ class DetectionValidator(BaseValidator):
+ 
+     def update_metrics(self, preds, batch):
+         """Metrics."""
++        device = torch.device('cpu') if getattr(self.model, 'om') else self.device
+         for si, pred in enumerate(preds):
+             self.seen += 1
+             npr = len(pred)
+             stat = dict(
+-                conf=torch.zeros(0, device=self.device),
+-                pred_cls=torch.zeros(0, device=self.device),
+-                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=self.device),
++                conf=torch.zeros(0, device=device),
++                pred_cls=torch.zeros(0, device=device),
++                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=device),
+             )
+             pbatch = self._prepare_batch(si, batch)
+             cls, bbox = pbatch.pop("cls"), pbatch.pop("bbox")
+diff --git a/ultralytics/models/yolo/obb/val.py b/ultralytics/models/yolo/obb/val.py
+index b5cb89f14..83c0c6b34 100644
+--- a/ultralytics/models/yolo/obb/val.py
++++ b/ultralytics/models/yolo/obb/val.py
+@@ -74,13 +74,16 @@ class OBBValidator(DetectionValidator):
+         imgsz = batch["img"].shape[2:]
+         ratio_pad = batch["ratio_pad"][si]
+         if len(cls):
+-            bbox[..., :4].mul_(torch.tensor(imgsz, device=self.device)[[1, 0, 1, 0]])  # target boxes
++            device = torch.device('cpu') if getattr(self.model, 'om') else self.device
++            bbox[..., :4].mul_(torch.tensor(imgsz, device=device)[[1, 0, 1, 0]])  # target boxes
+             ops.scale_boxes(imgsz, bbox, ori_shape, ratio_pad=ratio_pad, xywh=True)  # native-space labels
+         return {"cls": cls, "bbox": bbox, "ori_shape": ori_shape, "imgsz": imgsz, "ratio_pad": ratio_pad}
+ 
+     def _prepare_pred(self, pred, pbatch):
+         """Prepares and returns a batch for OBB validation with scaled and padded bounding boxes."""
+         predn = pred.clone()
++        if getattr(self.model, 'om'):
++            predn = predn.cpu()
+         ops.scale_boxes(
+             pbatch["imgsz"], predn[:, :4], pbatch["ori_shape"], ratio_pad=pbatch["ratio_pad"], xywh=True
+         )  # native-space pred
+diff --git a/ultralytics/models/yolo/pose/val.py b/ultralytics/models/yolo/pose/val.py
+index 1a32350c2..f87a483a0 100644
+--- a/ultralytics/models/yolo/pose/val.py
++++ b/ultralytics/models/yolo/pose/val.py
+@@ -40,9 +40,13 @@ class PoseValidator(DetectionValidator):
+             )
+ 
+     def preprocess(self, batch):
++        if getattr(self.model, 'om'):
++            target_device = torch.device('cpu')
++        else:
++            target_device = self.device
+         """Preprocesses the batch by converting the 'keypoints' data into a float and moving it to the device."""
+         batch = super().preprocess(batch)
+-        batch["keypoints"] = batch["keypoints"].to(self.device).float()
++        batch["keypoints"] = batch["keypoints"].to(target_device).float()
+         return batch
+ 
+     def get_desc(self):
+@@ -92,14 +96,15 @@ class PoseValidator(DetectionValidator):
+ 
+     def update_metrics(self, preds, batch):
+         """Metrics."""
++        device = torch.device('cpu') if getattr(self.model, 'om') else self.device
+         for si, pred in enumerate(preds):
+             self.seen += 1
+             npr = len(pred)
+             stat = dict(
+-                conf=torch.zeros(0, device=self.device),
+-                pred_cls=torch.zeros(0, device=self.device),
+-                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=self.device),
+-                tp_p=torch.zeros(npr, self.niou, dtype=torch.bool, device=self.device),
++                conf=torch.zeros(0, device=device),
++                pred_cls=torch.zeros(0, device=device),
++                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=device),
++                tp_p=torch.zeros(npr, self.niou, dtype=torch.bool, device=device),
+             )
+             pbatch = self._prepare_batch(si, batch)
+             cls, bbox = pbatch.pop("cls"), pbatch.pop("bbox")
+diff --git a/ultralytics/models/yolo/segment/val.py b/ultralytics/models/yolo/segment/val.py
+index 8be870e3c..f8d97385e 100644
+--- a/ultralytics/models/yolo/segment/val.py
++++ b/ultralytics/models/yolo/segment/val.py
+@@ -37,9 +37,13 @@ class SegmentationValidator(DetectionValidator):
+         self.metrics = SegmentMetrics(save_dir=self.save_dir, on_plot=self.on_plot)
+ 
+     def preprocess(self, batch):
++        if getattr(self.model, 'om'):
++            target_device = torch.device('cpu')
++        else:
++            target_device = self.device
+         """Preprocesses batch by converting masks to float and sending to device."""
+         batch = super().preprocess(batch)
+-        batch["masks"] = batch["masks"].to(self.device).float()
++        batch["masks"] = batch["masks"].to(target_device).float()
+         return batch
+ 
+     def init_metrics(self, model):
+@@ -89,14 +93,15 @@ class SegmentationValidator(DetectionValidator):
+ 
+     def update_metrics(self, preds, batch):
+         """Metrics."""
++        device = torch.device('cpu') if getattr(self.model, 'om') else self.device
+         for si, (pred, proto) in enumerate(zip(preds[0], preds[1])):
+             self.seen += 1
+             npr = len(pred)
+             stat = dict(
+-                conf=torch.zeros(0, device=self.device),
+-                pred_cls=torch.zeros(0, device=self.device),
+-                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=self.device),
+-                tp_m=torch.zeros(npr, self.niou, dtype=torch.bool, device=self.device),
++                conf=torch.zeros(0, device=device),
++                pred_cls=torch.zeros(0, device=device),
++                tp=torch.zeros(npr, self.niou, dtype=torch.bool, device=device),
++                tp_m=torch.zeros(npr, self.niou, dtype=torch.bool, device=device),
+             )
+             pbatch = self._prepare_batch(si, batch)
+             cls, bbox = pbatch.pop("cls"), pbatch.pop("bbox")
+@@ -193,6 +198,12 @@ class SegmentationValidator(DetectionValidator):
+             ```
+         """
+         if masks:
++            if getattr(self.model, 'om'):
++                target_device = torch.device('cpu')
++                if gt_masks is not None and gt_masks.device != target_device:
++                    gt_masks = gt_masks.to(target_device)
++                if pred_masks is not None and pred_masks.device != target_device:
++                    pred_masks = pred_masks.to(target_device)
+             if overlap:
+                 nl = len(gt_cls)
+                 index = torch.arange(nl, device=gt_masks.device).view(nl, 1, 1) + 1
 diff --git a/ultralytics/nn/autobackend.py b/ultralytics/nn/autobackend.py
-index 7629fb7c..36ce75d6 100644
+index 7629fb7ca..06cf22906 100644
 --- a/ultralytics/nn/autobackend.py
 +++ b/ultralytics/nn/autobackend.py
-@@ -12,6 +12,10 @@ import numpy as np
+@@ -1,5 +1,6 @@
+ # Ultralytics 🚀 AGPL-3.0 License - https://ultralytics.com/license
+ 
++import re
+ import ast
+ import json
+ import platform
+@@ -12,6 +13,10 @@ import numpy as np
  import torch
  import torch.nn as nn
  from PIL import Image
@@ -39,11 +481,39 @@ index 7629fb7c..36ce75d6 100644
  
  from ultralytics.utils import ARM64, IS_JETSON, IS_RASPBERRYPI, LINUX, LOGGER, PYTHON_VERSION, ROOT, yaml_load
  from ultralytics.utils.checks import check_requirements, check_suffix, check_version, check_yaml, is_rockchip
-@@ -156,6 +160,12 @@ class AutoBackend(nn.Module):
+@@ -127,9 +132,10 @@ class AutoBackend(nn.Module):
+             ncnn,
+             imx,
+             rknn,
++            om,
+             triton,
+         ) = self._model_type(w)
+-        fp16 &= pt or jit or onnx or xml or engine or nn_module or triton  # FP16
++        fp16 &= pt or jit or onnx or xml or engine or nn_module or triton # FP16
+         nhwc = coreml or saved_model or pb or tflite or edgetpu or rknn  # BHWC formats (vs torch BCWH)
+         stride = 32  # default stride
+         end2end = False  # default end2end
+@@ -137,12 +143,14 @@ class AutoBackend(nn.Module):
+ 
+         # Set device
+         cuda = torch.cuda.is_available() and device.type != "cpu"  # use CUDA
+-        if cuda and not any([nn_module, pt, jit, engine, onnx, paddle]):  # GPU dataloader formats
++        if cuda and not any([nn_module, pt, jit, engine, onnx, paddle, om]):  # GPU dataloader formats
+             device = torch.device("cpu")
+             cuda = False
+ 
++
++
+         # Download if not local
+-        if not (pt or triton or nn_module):
++        if not (pt or triton or nn_module or om):
+             w = attempt_download_asset(w)
+ 
+         # In-memory PyTorch model
+@@ -156,6 +164,11 @@ class AutoBackend(nn.Module):
              names = model.module.names if hasattr(model, "module") else model.names  # get class names
              model.half() if fp16 else model.float()
              self.model = model  # explicitly assign for to(), cpu(), cuda(), half()
-+            # 添加torchair适配代码
 +            config = CompilerConfig()
 +            config.experimental_config.frozen_parameter = True
 +            npu_backbend = tng.get_npu_backend(compiler_config=config)
@@ -52,29 +522,138 @@ index 7629fb7c..36ce75d6 100644
              pt = True
  
          # PyTorch
+@@ -492,6 +505,84 @@ class AutoBackend(nn.Module):
+             rknn_model.init_runtime()
+             metadata = Path(w).parent / "metadata.yaml"
+ 
++        elif om:
++            LOGGER.info(f"Loading {w} for OM inference...")
++            try:
++                from ais_bench.infer.interface import InferSession
++            except ImportError:
++                raise ImportError("OM model requires 'ais_bench' pacaage. Please install with: pip install ais_bench")
++
++            w = Path(w)
++            device_id = device.index if device.type == 'npu' else 0
++            model = InferSession(device_id, str(w))
++            model_name = w.stem.lower()
++            parsed_batch = batch
++
++            if "_bs" in model_name:
++                try:
++                    batch_str = model_name.split("_bs")[1]
++                    parsed_batch = int(batch_str)
++                    LOGGER.info(f"Parsed batch size {parsed_batch} from filename")
++                except (IndexError, ValueError):
++                    LOGGER.warning(f"Could not parse batch size from filename {model_name}, using default {batch}")
++
++            # Determine name of task and image size from suffix of model
++            if "-seg" in model_name:
++                task = "segment"
++                imgsz = 640
++            elif "-cls" in model_name:
++                task = "classify"
++                imgsz = 224
++            elif "-pose" in model_name:
++                task = "pose"
++                imgsz = 640
++            elif "-obb" in model_name:
++                task = "obb"
++                imgsz = 1024
++            else:
++                task = "detect"
++                imgsz = 640
++
++            stride = 32
++            names = None
++            pt_model_path = re.sub(r'_bs\d+\.om$', '.pt', str(w))
++            pt_path = Path(pt_model_path)
++
++            if pt_path.exists():
++                LOGGER.info(f"Found corresponding PyTorch model: {pt_path}")
++                try:
++                    from ultralytics.nn.tasks import attempt_load_weights
++                    pt_model = attempt_load_weights(str(pt_model_path), device='cpu', inplace=True, fuse=False)
++
++                    names = pt_model.module.names if hasattr(pt_model, "module") else pt_model.names
++                    stride = max(int(pt_model.stride.max()), 32)
++                    task = getattr(pt_model, "task", task)
++
++                    LOGGER.info(f" Extracted metadata from PyTorch model: task={task}, stride={stride}, classes={len(names)}")
++
++                    del pt_model
++                except Exception as e:
++                    LOGGER.error(f"Failed to extract metadata from PyTorch model: {e}")
++                    #names = None
++                    raise RuntimeError(f"Cannot load OM model without valid metadata.")
++            else:
++                LOGGER.error(f"Corresponding PyTorch model not found: {pt_path}")
++                raise RuntimeError(f"Cannot load OM model without corresponding PyTorch model. Please ensure PyTorch model exists at {pt_path}")
++
++            if names is None:
++                raise RuntimeError(f"Failed to extract metadata from PyTorch model. Cannot load OM model without valid metadata.")
++
++            metadata = {
++                "stride": stride,
++                "task": task,
++                "batch": parsed_batch,
++                "imgsz": imgsz,
++                "names": names
++            }
++
++            LOGGER.info(f"Using metadata from PyTorch model: task={task}, stride={stride}, batch={parsed_batch}, imgsz={imgsz}, classes={len(names)}")
++            self.model = model
++
+         # Any other format (unsupported)
+         else:
+             from ultralytics.engine.exporter import export_formats
+@@ -685,6 +776,11 @@ class AutoBackend(nn.Module):
+             im = im if isinstance(im, (list, tuple)) else [im]
+             y = self.rknn_model.inference(inputs=im)
+ 
++        elif self.om:
++            y = self.model.infer([im])
++            if isinstance(y, (list, tuple)) and len(y) == 1:
++                y = y[0]
++
+         # TensorFlow (SavedModel, GraphDef, Lite, Edge TPU)
+         else:
+             im = im.cpu().numpy()
+@@ -765,9 +861,12 @@ class AutoBackend(nn.Module):
+         """
+         import torchvision  # noqa (import here so torchvision import time not recorded in postprocess time)
+ 
+-        warmup_types = self.pt, self.jit, self.onnx, self.engine, self.saved_model, self.pb, self.triton, self.nn_module
++        warmup_types = self.pt, self.jit, self.onnx, self.engine, self.saved_model, self.pb, self.triton, self.nn_module, self.om
+         if any(warmup_types) and (self.device.type != "cpu" or self.triton):
+-            im = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input
++            if self.om:
++                im = torch.empty(*imgsz, dtype=torch.float, device=torch.device('cpu'))
++            else:
++                im = torch.empty(*imgsz, dtype=torch.half if self.fp16 else torch.float, device=self.device)  # input
+             for _ in range(2 if self.jit else 1):
+                 self.forward(im)  # warmup
+ 
 diff --git a/ultralytics/nn/modules/block.py b/ultralytics/nn/modules/block.py
-index 567e1aaf..96fe54d0 100644
+index 567e1aafa..03cb5c93f 100644
 --- a/ultralytics/nn/modules/block.py
 +++ b/ultralytics/nn/modules/block.py
-@@ -185,7 +185,10 @@ class SPPF(nn.Module):
+@@ -185,7 +185,9 @@ class SPPF(nn.Module):
      def forward(self, x):
          """Forward pass through Ghost Convolution block."""
          y = [self.cv1(x)]
 -        y.extend(self.m(y[-1]) for _ in range(3))
-+        # y.extend(self.m(y[-1]) for _ in range(3))
 +        for _ in range(3):
 +            o1 = self.m(y[-1])
-+            y.extend(o1.unsqueeze(0))
++            y.append(o1)
          return self.cv2(torch.cat(y, 1))
-
  
-@@ -236,7 +239,11 @@ class C2f(nn.Module):
+ 
+@@ -236,7 +238,9 @@ class C2f(nn.Module):
      def forward(self, x):
          """Forward pass through C2f layer."""
          y = list(self.cv1(x).chunk(2, 1))
 -        y.extend(m(y[-1]) for m in self.m)
-+        # y.extend(m(y[-1]) for m in self.m)
-+        # 该条代码在torch和dynamo中存在逻辑分歧，改为外部循环表示
 +        for m in self.m:
 +            o1 = m(y[-1])
 +            y.extend(o1.unsqueeze(0))
@@ -82,44 +661,308 @@ index 567e1aaf..96fe54d0 100644
  
      def forward_split(self, x):
 diff --git a/ultralytics/nn/modules/head.py b/ultralytics/nn/modules/head.py
-index b9d05024..fa4fc606 100644
+index b9d050246..bd4b05e32 100644
 --- a/ultralytics/nn/modules/head.py
 +++ b/ultralytics/nn/modules/head.py
-@@ -102,9 +102,9 @@ class Detect(nn.Module):
-         # Inference path
+@@ -17,6 +17,7 @@ from .utils import bias_init_with_prob, linear_init
+ 
+ __all__ = "Detect", "Segment", "Pose", "Classify", "OBB", "RTDETRDecoder", "v10Detect"
+ 
++from torch import _dynamo
+ 
+ class Detect(nn.Module):
+     """YOLO Detect head for detection models."""
+@@ -27,8 +28,8 @@ class Detect(nn.Module):
+     end2end = False  # end2end
+     max_det = 300  # max_det
+     shape = None
+-    anchors = torch.empty(0)  # init
+-    strides = torch.empty(0)  # init
++    anchors = None
++    strides = None
+     legacy = False  # backward compatibility for v3/v5/v8/v9 models
+ 
+     def __init__(self, nc=80, ch=()):
+@@ -61,7 +62,7 @@ class Detect(nn.Module):
+             self.one2one_cv2 = copy.deepcopy(self.cv2)
+             self.one2one_cv3 = copy.deepcopy(self.cv3)
+ 
+-    def forward(self, x):
++    def forward(self, x, **kwargs):
+         """Concatenates and returns predicted bounding boxes and class probabilities."""
+         if self.end2end:
+             return self.forward_end2end(x)
+@@ -70,7 +71,7 @@ class Detect(nn.Module):
+             x[i] = torch.cat((self.cv2[i](x[i]), self.cv3[i](x[i])), 1)
+         if self.training:  # Training path
+             return x
+-        y = self._inference(x)
++        y = self._inference(x, **kwargs)
+         return y if self.export else (y, x)
+ 
+     def forward_end2end(self, x):
+@@ -97,14 +98,15 @@ class Detect(nn.Module):
+         y = self.postprocess(y.permute(0, 2, 1), self.max_det, self.nc)
+         return y if self.export else (y, {"one2many": x, "one2one": one2one})
+ 
+-    def _inference(self, x):
++
++    def _inference(self, x, **kwargs):
+         """Decode predicted bounding boxes and class probabilities based on multiple-level feature maps."""
+-        # Inference path
++
          shape = x[0].shape  # BCHW
          x_cat = torch.cat([xi.view(shape[0], self.no, -1) for xi in x], 2)
 -        if self.format != "imx" and (self.dynamic or self.shape != shape):
 -            self.anchors, self.strides = (x.transpose(0, 1) for x in make_anchors(x, self.stride, 0.5))
 -            self.shape = shape
-+        anchors, strides = make_anchors(x, self.stride, 0.5)
-+        anchors = anchors.transpose(0, 1)
-+        strides = strides.transpose(0, 1)
++        anchor_tensors = make_anchors(x, self.stride, 0.5)
++        anchors = anchor_tensors[0].transpose(0, 1)
++        strides = anchor_tensors[1].transpose(0, 1)
  
          if self.export and self.format in {"saved_model", "pb", "tflite", "edgetpu", "tfjs"}:  # avoid TF FlexSplitV ops
              box = x_cat[:, : self.reg_max * 4]
-@@ -118,15 +118,15 @@ class Detect(nn.Module):
+@@ -118,15 +120,15 @@ class Detect(nn.Module):
              grid_h = shape[2]
              grid_w = shape[3]
              grid_size = torch.tensor([grid_w, grid_h, grid_w, grid_h], device=box.device).reshape(1, 4, 1)
 -            norm = self.strides / (self.stride[0] * grid_size)
 -            dbox = self.decode_bboxes(self.dfl(box) * norm, self.anchors.unsqueeze(0) * norm[:, :2])
-+            norm = strides / (stride[0] * grid_size)
-+            dbox = self.decode_bboxes(self.dfl(box) * norm, anchors.unsqueeze(0) * norm[:, :2])
++            norm = strides / (self.stride[0] * grid_size)
++            dbox = self.decode_bboxes(self.dfl(box) * norm, anchors.unsqueeze(0) * norm[:, :2], **kwargs)
          elif self.export and self.format == "imx":
              dbox = self.decode_bboxes(
 -                self.dfl(box) * self.strides, self.anchors.unsqueeze(0) * self.strides, xywh=False
-+                self.dfl(box) * strides, anchors.unsqueeze(0) * strides, xywh=False
++                self.dfl(box) * strides, anchors.unsqueeze(0) * strides, xywh=False, **kwargs
              )
              return dbox.transpose(1, 2), cls.sigmoid().permute(0, 2, 1)
          else:
 -            dbox = self.decode_bboxes(self.dfl(box), self.anchors.unsqueeze(0)) * self.strides
-+            dbox = self.decode_bboxes(self.dfl(box), anchors.unsqueeze(0)) * strides
++            dbox = self.decode_bboxes(self.dfl(box), anchors.unsqueeze(0), **kwargs) * strides
  
          return torch.cat((dbox, cls.sigmoid()), 1)
  
+@@ -137,11 +139,16 @@ class Detect(nn.Module):
+         # ncf = math.log(0.6 / (m.nc - 0.999999)) if cf is None else torch.log(cf / cf.sum())  # nominal class frequency
+         for a, b, s in zip(m.cv2, m.cv3, m.stride):  # from
+             a[-1].bias.data[:] = 1.0  # box
+-            b[-1].bias.data[: m.nc] = math.log(5 / m.nc / (640 / s) ** 2)  # cls (.01 objects, 80 classes, 640 img)
++            #b[-1].bias.data[: m.nc] = math.log(5 / m.nc / (640 / s) ** 2)  # cls (.01 objects, 80 classes, 640 img)
++            nc_val = m.nc
++            bias_val = math.log(5 / nc_val / (640 / s) ** 2)
++            b[-1].bias.data[: int(nc_val)] = bias_val
+         if self.end2end:
+             for a, b, s in zip(m.one2one_cv2, m.one2one_cv3, m.stride):  # from
+                 a[-1].bias.data[:] = 1.0  # box
+-                b[-1].bias.data[: m.nc] = math.log(5 / m.nc / (640 / s) ** 2)  # cls (.01 objects, 80 classes, 640 img)
++                nc_val = m.nc
++                bias_val = math.log(5 / nc_val / (640 / s) ** 2)
++                b[-1].bias.data[: int(nc_val)] = bias_val
+ 
+     def decode_bboxes(self, bboxes, anchors, xywh=True):
+         """Decode bounding boxes."""
+@@ -212,21 +219,19 @@ class OBB(Detect):
+         """Concatenates and returns predicted bounding boxes and class probabilities."""
+         bs = x[0].shape[0]  # batch size
+         angle = torch.cat([self.cv4[i](x[i]).view(bs, self.ne, -1) for i in range(self.nl)], 2)  # OBB theta logits
+-        # NOTE: set `angle` as an attribute so that `decode_bboxes` could use it.
+         angle = (angle.sigmoid() - 0.25) * math.pi  # [-pi/4, 3pi/4]
+-        # angle = angle.sigmoid() * math.pi / 2  # [0, pi/2]
+-        if not self.training:
+-            self.angle = angle
+-        x = Detect.forward(self, x)
++        x = Detect.forward(self, x, angle=angle)
+         if self.training:
+             return x, angle
+         return torch.cat([x, angle], 1) if self.export else (torch.cat([x[0], angle], 1), (x[1], angle))
+ 
+-    def decode_bboxes(self, bboxes, anchors):
+-        """Decode rotated bounding boxes."""
+-        return dist2rbox(bboxes, self.angle, anchors, dim=1)
+ 
+ 
++    def decode_bboxes(self, bboxes, anchors, **kwargs):
++        # """Decode rotated bounding boxes."""
++        angle = kwargs.get("angle")
++        return dist2rbox(bboxes, angle, anchors, dim=1)
++
+ class Pose(Detect):
+     """YOLO Pose head for keypoints models."""
+ 
+@@ -242,40 +247,57 @@ class Pose(Detect):
+     def forward(self, x):
+         """Perform forward pass through YOLO model and return predictions."""
+         bs = x[0].shape[0]  # batch size
++        shape = x[0].shape
+         kpt = torch.cat([self.cv4[i](x[i]).view(bs, self.nk, -1) for i in range(self.nl)], -1)  # (bs, 17*3, h*w)
+-        x = Detect.forward(self, x)
++        detect_result = Detect.forward(self, x)
+         if self.training:
+-            return x, kpt
+-        pred_kpt = self.kpts_decode(bs, kpt)
+-        return torch.cat([x, pred_kpt], 1) if self.export else (torch.cat([x[0], pred_kpt], 1), (x[1], kpt))
++            return detect_result, kpt
++        if self.export:
++            feats_for_anchors = x
++        else:
++            _, feats_for_anchors = detect_result
++
++        pred_kpt = self.kpts_decode(bs, kpt, shape, feats_for_anchors)
++        return torch.cat([detect_result, pred_kpt], 1) if self.export else (torch.cat([detect_result[0], pred_kpt], 1), (detect_result[1], kpt))
+ 
+-    def kpts_decode(self, bs, kpts):
++    def kpts_decode(self, bs, kpts, shape, feats):
+         """Decodes keypoints."""
+         ndim = self.kpt_shape[1]
++        anchor_tensors = make_anchors(feats, self.stride, 0.5)
++        anchors = anchor_tensors[0].transpose(0, 1)
++        strides = anchor_tensors[1].transpose(0, 1)
+         if self.export:
+             if self.format in {
+                 "tflite",
+                 "edgetpu",
+             }:  # required for TFLite export to avoid 'PLACEHOLDER_FOR_GREATER_OP_CODES' bug
+                 # Precompute normalization factor to increase numerical stability
++
+                 y = kpts.view(bs, *self.kpt_shape, -1)
+-                grid_h, grid_w = self.shape[2], self.shape[3]
++                grid_h, grid_w = shape[2],shape[3]
+                 grid_size = torch.tensor([grid_w, grid_h], device=y.device).reshape(1, 2, 1)
+-                norm = self.strides / (self.stride[0] * grid_size)
+-                a = (y[:, :, :2] * 2.0 + (self.anchors - 0.5)) * norm
++                norm = strides / (stride[0] * grid_size)
++                a = (y[:, :, :2] * 2.0 + (anchors - 0.5)) * norm
+             else:
+                 # NCNN fix
+                 y = kpts.view(bs, *self.kpt_shape, -1)
+-                a = (y[:, :, :2] * 2.0 + (self.anchors - 0.5)) * self.strides
++                a = (y[:, :, :2] * 2.0 + (anchors - 0.5)) * strides
+             if ndim == 3:
+                 a = torch.cat((a, y[:, :, 2:3].sigmoid()), 2)
+             return a.view(bs, self.nk, -1)
+         else:
+             y = kpts.clone()
+             if ndim == 3:
+-                y[:, 2::3] = y[:, 2::3].sigmoid()  # sigmoid (WARNING: inplace .sigmoid_() Apple MPS bug)
+-            y[:, 0::ndim] = (y[:, 0::ndim] * 2.0 + (self.anchors[0] - 0.5)) * self.strides
+-            y[:, 1::ndim] = (y[:, 1::ndim] * 2.0 + (self.anchors[1] - 0.5)) * self.strides
++                y[:, 2::3] = y[:, 2::3].sigmoid()
++
++            anchors_x = anchors[0]
++            anchors_y = anchors[1]
++
++            x_coords = (y[:, 0::ndim] * 2.0 + (anchors_x - 0.5)) * strides
++            y_coords = (y[:, 1::ndim] * 2.0 + (anchors_y - 0.5)) * strides
++            y[:, 0::ndim] = x_coords
++            y[:, 1::ndim] = y_coords
++
+             return y
+ 
+ 
+diff --git a/ultralytics/nn/tasks.py b/ultralytics/nn/tasks.py
+index 44e7b75cf..1b16262be 100644
+--- a/ultralytics/nn/tasks.py
++++ b/ultralytics/nn/tasks.py
+@@ -146,8 +146,19 @@ class BaseModel(torch.nn.Module):
+         """
+         y, dt, embeddings = [], [], []  # outputs
+         for m in self.model:
+-            if m.f != -1:  # if not from previous layer
+-                x = y[m.f] if isinstance(m.f, int) else [x if j == -1 else y[j] for j in m.f]  # from earlier layers
++            f_val = m.f
++            if isinstance(f_val, int):
++                if f_val != -1:
++                    x = y[f_val]
++            else:
++                x_list = []
++                for j in f_val:
++                    if j == -1:
++                        x_list.append(x)
++                    else:
++                        x_list.append(y[j])
++                x = x_list
++
+             if profile:
+                 self._profile_one_layer(m, x, dt)
+             x = m(x)  # run
+@@ -575,8 +586,18 @@ class RTDETRDetectionModel(DetectionModel):
+         """
+         y, dt, embeddings = [], [], []  # outputs
+         for m in self.model[:-1]:  # except the head part
+-            if m.f != -1:  # if not from previous layer
+-                x = y[m.f] if isinstance(m.f, int) else [x if j == -1 else y[j] for j in m.f]  # from earlier layers
++            f_val = m.f
++            if isinstance(f_val, int):
++                if f_val != -1:
++                    x = y[f_val]
++            else:
++                x_list = []
++                for j in f_val:
++                    if j == -1:
++                        x_list.append(x)
++                    else:
++                        x_list.append(y[j])
++                x = x_list
+             if profile:
+                 self._profile_one_layer(m, x, dt)
+             x = m(x)  # run
+@@ -643,8 +664,19 @@ class WorldModel(DetectionModel):
+         ori_txt_feats = txt_feats.clone()
+         y, dt, embeddings = [], [], []  # outputs
+         for m in self.model:  # except the head part
+-            if m.f != -1:  # if not from previous layer
+-                x = y[m.f] if isinstance(m.f, int) else [x if j == -1 else y[j] for j in m.f]  # from earlier layers
++
++            f_val = m.f
++            if isinstance(f_val, int):
++                if f_val != -1:
++                    x = y[f_val]
++            else:
++                x_list = []
++                for j in f_val:
++                    if j == -1:
++                        x_list.append(x)
++                    else:
++                        x_list.append(y[j])
++                x = x_list
+             if profile:
+                 self._profile_one_layer(m, x, dt)
+             if isinstance(m, C2fAttn):
+diff --git a/ultralytics/utils/metrics.py b/ultralytics/utils/metrics.py
+index 7d9629ec8..d26f444e5 100644
+--- a/ultralytics/utils/metrics.py
++++ b/ultralytics/utils/metrics.py
+@@ -148,7 +148,27 @@ def mask_iou(mask1, mask2, eps=1e-7):
+     Returns:
+         (torch.Tensor): A tensor of shape (N, M) representing masks IoU.
+     """
+-    intersection = torch.matmul(mask1, mask2.T).clamp_(0)
++    is_om_output = mask1.device.type == 'cpu' and mask2.device.type == 'cpu'
++    # avoid bug from ARM + PyTorch 2.1.0 of 1×1 matmul
++    intersection = None
++
++    if is_om_output and mask1.shape[0] == 1 and mask2.shape[0] == 1:
++        try:
++            if torch.npu.is_available():
++                mask1_npu = mask1.to('npu')
++                mask2_npu = mask2.to('npu')
++                intersection = torch.matmul(mask1_npu, mask2_npu.T).clamp_(0).to('cpu')
++            else:
++                dot_product = (mask1.flatten() * mask2.flatten()).sum()
++                intersection = torch.tensor([[dot_product.clamp_(0)]], dtype=mask1.dtype, device=mask1.device)
++        except Exception as e:
++            dot_product = (mask1.flatten() * mask2.flatten()).sum()
++            intersection = torch.tensor([[dot_product.clamp_(0)]], dtype=mask1.dtype, device=mask1.device)
++    else:
++        intersection = torch.matmul(mask1, mask2.T).clamp_(0)
++    if intersection is None:
++        raise RuntimeError("Failed to compute intersection matrix")
++
+     union = (mask1.sum(1)[:, None] + mask2.sum(1)[None]) - intersection  # (area1 + area2) - intersection
+     return intersection / (union + eps)
+ 
 diff --git a/ultralytics/utils/tal.py b/ultralytics/utils/tal.py
-index e4a40f5e..2ded54be 100644
+index e4a40f5e2..2ded54be5 100644
 --- a/ultralytics/utils/tal.py
 +++ b/ultralytics/utils/tal.py
 @@ -341,7 +341,8 @@ def make_anchors(feats, strides, grid_cell_offset=0.5):
@@ -132,6 +975,4 @@ index e4a40f5e..2ded54be 100644
      return torch.cat(anchor_points), torch.cat(stride_tensor)
  
  
--- 
-2.33.0
 
