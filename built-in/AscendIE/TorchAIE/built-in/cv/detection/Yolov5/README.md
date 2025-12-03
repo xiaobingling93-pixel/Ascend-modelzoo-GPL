@@ -62,7 +62,7 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
    ```
    cd ..
-   git clone https://gitee.com/ascend/modelzoo-GPL.git
+   git clone https://gitcode.com/ascend/modelzoo-GPL.git
    cd /modelzoo-GPL/built-in/AscendIE/TorchAIE/built-in/cv/detection/Yolov5
    ``` 
 2. 获取`YoloV5`源码  

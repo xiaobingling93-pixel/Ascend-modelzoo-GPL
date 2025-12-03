@@ -102,7 +102,7 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
 3. 安装依赖
 
-   请访问[msit推理工具](https://gitee.com/ascend/msit/tree/master/msit/)代码仓，根据readme文档进行工具安装surgeon组件。
+   请访问[msit推理工具](https://gitcode.com/ascend/msit/tree/master/msit/)代码仓，根据readme文档进行工具安装surgeon组件。
    ```
    pip3 install -r requirements.txt
    ```

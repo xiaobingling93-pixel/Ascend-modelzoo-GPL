@@ -1,14 +1,14 @@
 # 欢迎使用modelzoo-GPL
 
-为方便更多开发者使用modelzoo-GPL，我们将持续增加典型网络和相关预训练模型。下面目录中我们罗列出一些重点模型。如果您有任何需求，请在[modelzoo-GPL/issues](https://gitee.com/ascend/modelzoo-GPL/issues)提交issue，我们会及时处理。
+为方便更多开发者使用modelzoo-GPL，我们将持续增加典型网络和相关预训练模型。下面目录中我们罗列出一些重点模型。如果您有任何需求，请在[modelzoo-GPL/issues](https://gitcode.com/ascend/modelzoo-GPL/issues)提交issue，我们会及时处理。
 
 ## 声明
 
-本仓仅适用于GPL类许可证下的模型，请访问[modelzoo](https://gitee.com/ascend/modelzoo)获取其他的模型。
+本仓仅适用于GPL类许可证下的模型，请访问[modelzoo](https://gitcode.com/ascend/modelzoo)获取其他的模型。
 
 ## 如何贡献
 
-在开始贡献之前，请先阅读[CONTRIBUTING](https://gitee.com/ascend/modelzoo/blob/master/CONTRIBUTING.md)。
+在开始贡献之前，请先阅读[CONTRIBUTING](https://gitcode.com/ascend/modelzoo/blob/master/CONTRIBUTING.md)。
 谢谢！
 
 ## 安装依赖
@@ -55,13 +55,13 @@
 
 💡 版本配套表在不同模型中的应用策略可能不一致，详情参考[维护策略](#维护策略)。
 
-版本配套表地址：[链接](https://gitee.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)。
+版本配套表地址：[链接](https://gitcode.com/ascend/pytorch#%E6%98%87%E8%85%BE%E8%BE%85%E5%8A%A9%E8%BD%AF%E4%BB%B6)。
 
 ## 硬件配套表
 
 昇腾训练设备包含以下型号，都可作为PyTorch模型的训练环境。
 
-硬件配套表：[链接](https://gitee.com/ascend/pytorch#%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%A5%97)
+硬件配套表：[链接](https://gitcode.com/ascend/pytorch#%E7%A1%AC%E4%BB%B6%E9%85%8D%E5%A5%97)
 
 
 ## 维护策略
@@ -69,19 +69,19 @@
 - 针对随版本演进模型：请跟随版本配套表，选择最新版本使用。
 - 针对不随版本演进模型：这些模型已不随PyTorch和PyTorch Extension的版本演进，您可以选择以下策略。
   - 可根据对应模型的README选择对应PyTorch、PyTorch Extension、CANN、HDK版本使用。
-  - 如您对该模型有新版本PyTorch、PyTorch Extension、CANN、HDK的适配需求，可在[modelzoo-GPL/issues](https://gitee.com/ascend/modelzoo-GPL/issues)提交issue，我们会及时处理。
+  - 如您对该模型有新版本PyTorch、PyTorch Extension、CANN、HDK的适配需求，可在[modelzoo-GPL/issues](https://gitcode.com/ascend/modelzoo-GPL/issues)提交issue，我们会及时处理。
 
 
 ## 范围界定
 
 ### 随版本演进模型
 
-- [Yolov5s_for_PyTorch_v6.0(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5s_for_PyTorch_v6.0(FP32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5s_for_PyTorch_v6.0(HF32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov5m_for_PyTorch_v6.0(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
-- [Yolov7_for_PyTorch(FP16)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov7_for_PyTorch)
-- [Yolov8_for_PyTorch(FP32)](https://gitee.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov8_for_PyTorch)
+- [Yolov5s_for_PyTorch_v6.0(FP16)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
+- [Yolov5s_for_PyTorch_v6.0(FP32)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
+- [Yolov5s_for_PyTorch_v6.0(HF32)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
+- [Yolov5m_for_PyTorch_v6.0(FP16)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0)
+- [Yolov7_for_PyTorch(FP16)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov7_for_PyTorch)
+- [Yolov8_for_PyTorch(FP32)](https://gitcode.com/ascend/modelzoo-GPL/tree/master/built-in/PyTorch/Official/cv/object_detection/Yolov8_for_PyTorch)
 
 ### 不随版本演进模型
 
@@ -136,10 +136,10 @@
 ### 致ModelZoo-GPL使用者
 1. ModelZoo-GPL提供的模型仅供您用于非商业目的。
 2. 对于各模型，ModelZoo-GPL平台仅提示性地向您建议可用于训练的数据集，华为不提供任何数据集，如您使用这些数据集进行训练，请您特别注意应遵守对应数据集的License，如您因使用数据集而产生侵权纠纷，华为不承担任何责任。
-3. 如您在使用ModelZoo-GPL模型过程中，发现任何问题（包括但不限于功能问题、合规问题），请在Gitee提交issue，我们将及时审视并解决。
+3. 如您在使用ModelZoo-GPL模型过程中，发现任何问题（包括但不限于功能问题、合规问题），请在Gitcode提交issue，我们将及时审视并解决。
 
 ### 致数据集所有者
-如果您不希望您的数据集在ModelZoo-GPL中的模型被提及，或希望更新ModelZoo-GPL中的模型关于您的数据集的描述，请在Gitee提交issue，我们将根据您的issue要求删除或更新您的数据集描述。衷心感谢您对ModelZoo-GPL的理解和贡献。
+如果您不希望您的数据集在ModelZoo-GPL中的模型被提及，或希望更新ModelZoo-GPL中的模型关于您的数据集的描述，请在Gitcode提交issue，我们将根据您的issue要求删除或更新您的数据集描述。衷心感谢您对ModelZoo-GPL的理解和贡献。
 
 ### License声明
 Ascend ModelZoo-GPL提供的模型，如模型目录下存在License的，以该License为准。如模型目录下不存在License的，以GNU GENERAL PUBLIC LICENSE许可证为准，对应许可证文本可查阅Ascend ModelZoo-GPL根目录。
