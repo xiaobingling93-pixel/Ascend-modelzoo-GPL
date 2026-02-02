@@ -174,7 +174,7 @@ python3 infer.py --task=${task_name} --pth=${pth} --dataset=${dataset} --batchsi
 
 ```bash
 # 权重文件转onnx格式，执行这一步需要提前手动下载权重文件或至少执行过一次TorchAir方式的推理
-bash pt2onnx.py --pt=${pt} --batch=${batch_size}
+python3 pt2onnx.py --pt=${pt} --batch=${batch_size}
 
 # 上一步导出的onnx文件转om格式
 bash convert_to_om.sh ${onnx_path} [${batch_size}] [${chip_name}]
