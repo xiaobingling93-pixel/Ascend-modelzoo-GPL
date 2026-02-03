@@ -1,0 +1,313 @@
+diff --git a/ultralytics/engine/predictor.py b/ultralytics/engine/predictor.py
+index d10fce5..b9bf985 100644
+--- a/ultralytics/engine/predictor.py
++++ b/ultralytics/engine/predictor.py
+@@ -236,7 +236,7 @@ class BasePredictor:
+ 
+             # Warmup model
+             if not self.done_warmup:
+-                self.model.warmup(imgsz=(1 if self.model.pt or self.model.triton else self.dataset.bs, 3, *self.imgsz))
++                self.model.warmup(imgsz=(self.dataset.bs, 3, self.imgsz[0] // 2 // self.model.stride * self.model.stride, self.imgsz[0]))
+                 self.done_warmup = True
+ 
+             self.seen, self.windows, self.batch = 0, [], None
+@@ -307,7 +307,7 @@ class BasePredictor:
+         """Initialize YOLO model with given parameters and set it to evaluation mode."""
+         self.model = AutoBackend(
+             weights=model or self.args.model,
+-            device=select_device(self.args.device, verbose=verbose),
++            device=torch.device('npu'),
+             dnn=self.args.dnn,
+             data=self.args.data,
+             fp16=self.args.half,
+diff --git a/ultralytics/engine/validator.py b/ultralytics/engine/validator.py
+index 6dc8026..cc62b6c 100644
+--- a/ultralytics/engine/validator.py
++++ b/ultralytics/engine/validator.py
+@@ -125,7 +125,7 @@ class BaseValidator:
+             callbacks.add_integration_callbacks(self)
+             model = AutoBackend(
+                 weights=model or self.args.model,
+-                device=select_device(self.args.device, self.args.batch),
++                device=torch.device('npu'),
+                 dnn=self.args.dnn,
+                 data=self.args.data,
+                 fp16=self.args.half,
+@@ -156,7 +156,7 @@ class BaseValidator:
+             self.dataloader = self.dataloader or self.get_dataloader(self.data.get(self.args.split), self.args.batch)
+ 
+             model.eval()
+-            model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup
++            model.warmup(imgsz=(self.args.batch, 3, imgsz // 2 // stride * stride, imgsz))
+ 
+         self.run_callbacks("on_val_start")
+         dt = (
+diff --git a/ultralytics/nn/autobackend.py b/ultralytics/nn/autobackend.py
+index 3d7af68..4af21f2 100644
+--- a/ultralytics/nn/autobackend.py
++++ b/ultralytics/nn/autobackend.py
+@@ -11,6 +11,10 @@ import cv2
+ import numpy as np
+ import torch
+ import torch.nn as nn
++import torch_npu
++from torch_npu.contrib import transfer_to_npu
++import torchair as tng
++from torchair.configs.compiler_config import CompilerConfig
+ from PIL import Image
+ 
+ from ultralytics.utils import ARM64, IS_JETSON, IS_RASPBERRYPI, LINUX, LOGGER, ROOT, yaml_load
+@@ -151,6 +155,11 @@ class AutoBackend(nn.Module):
+             stride = max(int(model.stride.max()), 32)  # model stride
+             names = model.module.names if hasattr(model, "module") else model.names  # get class names
+             model.half() if fp16 else model.float()
++            config = CompilerConfig()
++            config.experimental_config.frozen_parameter = True
++            npu_backend = tng.get_npu_backend(compiler_config=config)
++            model = torch.compile(model, dynamic=True, fullgraph=True, backend=npu_backend)
++            tng.use_internal_format_weight(model)
+             self.model = model  # explicitly assign for to(), cpu(), cuda(), half()
+             pt = True
+ 
+diff --git a/ultralytics/nn/modules/block.py b/ultralytics/nn/modules/block.py
+index 7bfad10..7cac222 100644
+--- a/ultralytics/nn/modules/block.py
++++ b/ultralytics/nn/modules/block.py
+@@ -4,6 +4,7 @@
+ import torch
+ import torch.nn as nn
+ import torch.nn.functional as F
++import torch_npu
+ import math
+ 
+ from ultralytics.utils.torch_utils import fuse_conv_and_bn
+@@ -189,7 +190,9 @@ class SPPF(nn.Module):
+     def forward(self, x):
+         """Forward pass through Ghost Convolution block."""
+         y = [self.cv1(x)]
+-        y.extend(self.m(y[-1]) for _ in range(3))
++        for _ in range(3):
++            o1 = self.m(y[-1])
++            y.extend(o1.unsqueeze(0))
+         return self.cv2(torch.cat(y, 1))
+ 
+ 
+@@ -240,7 +243,9 @@ class C2f(nn.Module):
+     def forward(self, x):
+         """Forward pass through C2f layer."""
+         y = list(self.cv1(x).chunk(2, 1))
+-        y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            o1 = m(y[-1])
++            y.extend(o1.unsqueeze(0))
+         return self.cv2(torch.cat(y, 1))
+ 
+     def forward_split(self, x):
+@@ -722,7 +727,9 @@ class C3f(nn.Module):
+     def forward(self, x):
+         """Forward pass through C2f layer."""
+         y = [self.cv2(x), self.cv1(x)]
+-        y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            o1 = m(y[-1])
++            y.extend(o1.unsqueeze(0))
+         return self.cv3(torch.cat(y, 1))
+ 
+ 
+@@ -1164,18 +1171,6 @@ class TorchVision(nn.Module):
+ import logging
+ logger = logging.getLogger(__name__)
+ 
+-USE_FLASH_ATTN = False
+-try:
+-    import torch
+-    if torch.cuda.is_available() and torch.cuda.get_device_capability()[0] >= 8:  # Ampere or newer
+-        from flash_attn.flash_attn_interface import flash_attn_func
+-        USE_FLASH_ATTN = True
+-    else:
+-        from torch.nn.functional import scaled_dot_product_attention as sdpa
+-        logger.warning("FlashAttention is not available on this device. Using scaled_dot_product_attention instead.")
+-except Exception:
+-    from torch.nn.functional import scaled_dot_product_attention as sdpa
+-    logger.warning("FlashAttention is not available on this device. Using scaled_dot_product_attention instead.")
+ 
+ class AAttn(nn.Module):
+     """
+@@ -1223,44 +1218,30 @@ class AAttn(nn.Module):
+         B, C, H, W = x.shape
+         N = H * W
+ 
+-        qk = self.qk(x).flatten(2).transpose(1, 2)
++        qk = self.qk(x).flatten(2).transpose(1, 2).contiguous()
+         v = self.v(x)
+         pp = self.pe(v)
+-        v = v.flatten(2).transpose(1, 2)
++        v = v.flatten(2).transpose(1, 2).contiguous()
+ 
+         if self.area > 1:
+-            qk = qk.reshape(B * self.area, N // self.area, C * 2)
+-            v = v.reshape(B * self.area, N // self.area, C)
++            qk = qk.reshape(B * self.area, N // self.area, C * 2).contiguous()
++            v = v.reshape(B * self.area, N // self.area, C).contiguous()
+             B, N, _ = qk.shape
+         q, k = qk.split([C, C], dim=2)
+ 
+-        if x.is_cuda and USE_FLASH_ATTN:
+-            q = q.view(B, N, self.num_heads, self.head_dim)
+-            k = k.view(B, N, self.num_heads, self.head_dim)
+-            v = v.view(B, N, self.num_heads, self.head_dim)
+-
+-            x = flash_attn_func(
+-                q.contiguous().half(),
+-                k.contiguous().half(),
+-                v.contiguous().half()
+-            ).to(q.dtype)
+-        else:
+-            q = q.transpose(1, 2).view(B, self.num_heads, self.head_dim, N)
+-            k = k.transpose(1, 2).view(B, self.num_heads, self.head_dim, N)
+-            v = v.transpose(1, 2).view(B, self.num_heads, self.head_dim, N)
+-
+-            attn = (q.transpose(-2, -1) @ k) * (self.head_dim ** -0.5)
+-            max_attn = attn.max(dim=-1, keepdim=True).values
+-            exp_attn = torch.exp(attn - max_attn)
+-            attn = exp_attn / exp_attn.sum(dim=-1, keepdim=True)
+-            x = (v @ attn.transpose(-2, -1))
+-
+-            x = x.permute(0, 3, 1, 2)
++        x = torch_npu.npu_prompt_flash_attention(
++            q,
++            k,
++            v,
++            input_layout='BSH',
++            num_heads=self.num_heads,
++            scale_value=1 / math.sqrt(self.head_dim)
++        )
+ 
+         if self.area > 1:
+-            x = x.reshape(B // self.area, N * self.area, C)
++            x = x.reshape(B // self.area, N * self.area, C).contiguous()
+             B, N, _ = x.shape
+-        x = x.reshape(B, H, W, C).permute(0, 3, 1, 2)
++        x = x.reshape(B, H, W, C).permute(0, 3, 1, 2).contiguous()
+ 
+         return self.proj(x + pp)
+     
+@@ -1367,7 +1348,9 @@ class A2C2f(nn.Module):
+     def forward(self, x):
+         """Forward pass through R-ELAN layer."""
+         y = [self.cv1(x)]
+-        y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            o1 = m(y[-1])
++            y.extend(o1.unsqueeze(0))
+         if self.gamma is not None:
+             return x + self.gamma.view(1, -1, 1, 1) * self.cv2(torch.cat(y, 1))
+         return self.cv2(torch.cat(y, 1))
+@@ -1610,11 +1593,11 @@ class AdaHyperedgeGen(nn.Module):
+         prototypes = self.prototype_base.unsqueeze(0) + prototype_offsets           
+         
+         X_proj = self.pre_head_proj(X) 
+-        X_heads = X_proj.view(B, N, self.num_heads, self.head_dim).transpose(1, 2)
+-        proto_heads = prototypes.view(B, self.num_hyperedges, self.num_heads, self.head_dim).permute(0, 2, 1, 3)
++        X_heads = X_proj.view(B, N, self.num_heads, self.head_dim).transpose(1, 2).contiguous()
++        proto_heads = prototypes.view(B, self.num_hyperedges, self.num_heads, self.head_dim).permute(0, 2, 1, 3).contiguous()
+         
+-        X_heads_flat = X_heads.reshape(B * self.num_heads, N, self.head_dim)
+-        proto_heads_flat = proto_heads.reshape(B * self.num_heads, self.num_hyperedges, self.head_dim).transpose(1, 2)
++        X_heads_flat = X_heads.reshape(B * self.num_heads, N, self.head_dim).contiguous()
++        proto_heads_flat = proto_heads.reshape(B * self.num_heads, self.num_hyperedges, self.head_dim).transpose(1, 2).contiguous()
+         
+         logits = torch.bmm(X_heads_flat, proto_heads_flat) / self.scaling 
+         logits = logits.view(B, self.num_heads, N, self.num_hyperedges).mean(dim=1) 
+@@ -1713,10 +1696,12 @@ class AdaHGComputation(nn.Module):
+         
+     def forward(self, x):
+         B, C, H, W = x.shape
+-        tokens = x.flatten(2).transpose(1, 2) 
+-        tokens = self.hgnn(tokens) 
+-        x_out = tokens.transpose(1, 2).view(B, C, H, W)
+-        return x_out 
++        tokens = x.permute(0, 2, 3, 1).contiguous()
++        tokens = tokens.view(B, H * W, C)
++        tokens = self.hgnn(tokens)
++        tokens = tokens.view(B, H, W, C)
++        x_out = tokens.permute(0, 3, 1, 2).contiguous()
++        return x_out
+ 
+ class C3AH(nn.Module):
+     """
+@@ -1850,7 +1835,9 @@ class HyperACE(nn.Module):
+         y = list(self.cv1(x).chunk(3, 1))
+         out1 = self.branch1(y[1])
+         out2 = self.branch2(y[1])
+-        y.extend(m(y[-1]) for m in self.m)
++        for m in self.m:
++            o1 = m(y[-1])
++            y.extend(o1.unsqueeze(0))
+         y[1] = out1
+         y.append(out2)
+         return self.cv2(torch.cat(y, 1))
+diff --git a/ultralytics/nn/modules/head.py b/ultralytics/nn/modules/head.py
+index b9d0502..2c47d85 100644
+--- a/ultralytics/nn/modules/head.py
++++ b/ultralytics/nn/modules/head.py
+@@ -102,9 +102,9 @@ class Detect(nn.Module):
+         # Inference path
+         shape = x[0].shape  # BCHW
+         x_cat = torch.cat([xi.view(shape[0], self.no, -1) for xi in x], 2)
+-        if self.format != "imx" and (self.dynamic or self.shape != shape):
+-            self.anchors, self.strides = (x.transpose(0, 1) for x in make_anchors(x, self.stride, 0.5))
+-            self.shape = shape
++        anchors, strides = make_anchors(x, self.stride, 0.5)
++        anchors = anchors.transpose(0, 1)
++        strides = strides.transpose(0, 1)
+ 
+         if self.export and self.format in {"saved_model", "pb", "tflite", "edgetpu", "tfjs"}:  # avoid TF FlexSplitV ops
+             box = x_cat[:, : self.reg_max * 4]
+@@ -118,15 +118,15 @@ class Detect(nn.Module):
+             grid_h = shape[2]
+             grid_w = shape[3]
+             grid_size = torch.tensor([grid_w, grid_h, grid_w, grid_h], device=box.device).reshape(1, 4, 1)
+-            norm = self.strides / (self.stride[0] * grid_size)
+-            dbox = self.decode_bboxes(self.dfl(box) * norm, self.anchors.unsqueeze(0) * norm[:, :2])
++            norm = strides / (self.stride[0] * grid_size)
++            dbox = self.decode_bboxes(self.dfl(box) * norm, anchors.unsqueeze(0) * norm[:, :2])
+         elif self.export and self.format == "imx":
+             dbox = self.decode_bboxes(
+-                self.dfl(box) * self.strides, self.anchors.unsqueeze(0) * self.strides, xywh=False
++                self.dfl(box) * strides, anchors.unsqueeze(0) * strides, xywh=False
+             )
+             return dbox.transpose(1, 2), cls.sigmoid().permute(0, 2, 1)
+         else:
+-            dbox = self.decode_bboxes(self.dfl(box), self.anchors.unsqueeze(0)) * self.strides
++            dbox = self.decode_bboxes(self.dfl(box), anchors.unsqueeze(0)) * strides
+ 
+         return torch.cat((dbox, cls.sigmoid()), 1)
+ 
+diff --git a/ultralytics/utils/ops.py b/ultralytics/utils/ops.py
+index 52b5155..f8bc678 100644
+--- a/ultralytics/utils/ops.py
++++ b/ultralytics/utils/ops.py
+@@ -57,8 +57,7 @@ class Profile(contextlib.ContextDecorator):
+ 
+     def time(self):
+         """Get current time."""
+-        if self.cuda:
+-            torch.cuda.synchronize(self.device)
++        torch.npu.current_stream().synchronize()
+         return time.time()
+ 
+ 
+diff --git a/ultralytics/utils/tal.py b/ultralytics/utils/tal.py
+index e4a40f5..381b1f1 100644
+--- a/ultralytics/utils/tal.py
++++ b/ultralytics/utils/tal.py
+@@ -341,7 +341,7 @@ def make_anchors(feats, strides, grid_cell_offset=0.5):
+         sy = torch.arange(end=h, device=device, dtype=dtype) + grid_cell_offset  # shift y
+         sy, sx = torch.meshgrid(sy, sx, indexing="ij") if TORCH_1_10 else torch.meshgrid(sy, sx)
+         anchor_points.append(torch.stack((sx, sy), -1).view(-1, 2))
+-        stride_tensor.append(torch.full((h * w, 1), stride, dtype=dtype, device=device))
++        stride_tensor.append(torch.ones((h * w, 1), dtype=dtype, device=device) * stride)
+     return torch.cat(anchor_points), torch.cat(stride_tensor)
+ 
+ 

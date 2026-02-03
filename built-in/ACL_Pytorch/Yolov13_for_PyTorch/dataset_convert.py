@@ -1,0 +1,17 @@
+# Copyright (c) 2026 Huawei Technologies Co., Ltd
+# [Software Name] is licensed under Mulan PSL v2.
+# You can use this software according to the terms and conditions of the Mulan PSL v2.
+# THIS SOFTWARE IS PROVIDED ON AN "AS IS" BASIS, WITHOUT WARRANTIES OF ANY KIND,
+# EITHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO NON-INFRINGEMENT,
+# MERCHANTABILITY OR FIT FOR A PARTICULAR PURPOSE.
+# See the Mulan PSL v2 for more details.
+
+import argparse
+from ultralytics.data.converter import convert_coco
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="yolov13 dataset convert")
+    parser.add_argument("--data_path", type=str, help="path to annotation directory")
+    args = parser.parse_args()
+
+    convert_coco(labels_dir=args.data_path)
