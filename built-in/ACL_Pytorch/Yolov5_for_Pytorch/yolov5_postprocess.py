@@ -16,8 +16,8 @@ import re
 import os
 import sys
 import torch
+import onnx
 import numpy as np
-from auto_optimizer import OnnxGraph
 from tqdm import tqdm
 from pathlib import Path
 
@@ -30,8 +30,8 @@ from common.util.dataset import coco80_to_coco91_class, correct_bbox, save_coco_
 
 
 def postprocess(opt, cfg):
-    onnx_session = OnnxGraph.parse(opt.onnx)
-    outputs = onnx_session.outputs
+    onnx_model = onnx.load(opt.onnx) 
+    output_num = len(onnx_model.graph.output)
     reference_list = os.listdir(opt.output)
 
     if opt.nms_mode == "nms_script":
@@ -40,11 +40,11 @@ def postprocess(opt, cfg):
         path_list = np.load("path_list.npy", allow_pickle=True)
         shapes_list = np.load("shapes_list.npy", allow_pickle=True)
         pred_results = []
-        for i in tqdm(range(len(reference_list) // len(outputs))):
-            if len(outputs) == 3:
+        for i in tqdm(range(len(reference_list) // output_num)):
+            if output_num == 3:
                 out = []
                 # single img infer 3 output
-                for output_num in range(len(outputs)):
+                for output_num in range(output_num):
                     out_filepath = f"{opt.output}/{i}_{output_num}.bin"
                     inference_result = np.fromfile(out_filepath, dtype=np.float16)
                     inference_result = inference_result.reshape(shapes[output_num])

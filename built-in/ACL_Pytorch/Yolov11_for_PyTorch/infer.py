@@ -77,7 +77,7 @@ def get_default_imgsz(task):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="yolov11 validation with NPU support and auto model selection")
-    parser.add_argument("--pth", type=str, default=None, help="model weights path (optional, will auto-select by task)")
+    parser.add_argument("--model_path", type=str, default=None, help="model weights path (optional, will auto-select by task)")
     parser.add_argument("--dataset", type=str, default=None, help="dataset yaml path (optional, will auto-select by task)")
     parser.add_argument("--batchsize", type=int, default=16, help="batch size")
     parser.add_argument("--task", type=str, default="detect", choices=["detect", "segment", "pose", "classify", "obb"], help="task type")
@@ -88,21 +88,21 @@ if __name__ == '__main__':
     torch_npu.npu.set_compile_mode(jit_compile=False)
 
     # Auto model selection if not provided
-    if args.pth is None:
+    if args.model_path is None:
         auto_model = get_auto_model(args.task)
         print(f"No model specified, auto-selecting for {args.task} task: {auto_model}")
-        args.pth = auto_model
+        args.model_path = auto_model
     else:
-        print(f"Using specified model: {args.pth}")
+        print(f"Using specified model: {args.model_path}")
 
     # Check model type (PyTorch vs OM)
-    use_om = is_om_model(args.pth)
+    use_om = is_om_model(args.model_path)
     if use_om:
         if not OM_AVAILABLE:
             raise ImportError("OM model specified but ais_bench not available. Please install ais_bench.")
-        print(f"Detected OM model: {args.pth}")
+        print(f"Detected OM model: {args.model_path}")
     else:
-        print(f"Detected PyTorch model: {args.pth}")
+        print(f"Detected PyTorch model: {args.model_path}")
 
     # Auto dataset selection if not provided
     if args.dataset is None:
@@ -119,23 +119,23 @@ if __name__ == '__main__':
 
     # Load model
     if use_om:
-        print(f"OM model detected: {args.pth}")
+        print(f"OM model detected: {args.model_path}")
         print("Using OM model for inference (AutoBackend ACL support)")
 
         # Check if corresponding PyTorch model exists for metadata fallback
         
-        pt_model_path = re.sub(r'_bs\d+\.om$', '.pt', args.pth)
+        pt_model_path = re.sub(r'_bs\d+\.om$', '.pt', args.model_path)
         if Path(pt_model_path).exists():
             print(f"PyTorch reference model available: {pt_model_path}")
         else:
             raise FileNotFoundError(f"PyTorch reference model not found: {pt_model_path}")
 
         # Load OM model directly via AutoBackend
-        print(f"Loading OM model: {args.pth}")
+        print(f"Loading OM model: {args.model_path}")
     else:
-        print(f"Loading PyTorch model: {args.pth}")
+        print(f"Loading PyTorch model: {args.model_path}")
 
-    model = YOLO(args.pth)
+    model = YOLO(args.model_path)
 
     # Verify actual model type used
     if hasattr(model.model, 'om') and model.model.om:
@@ -170,7 +170,7 @@ if __name__ == '__main__':
         val_args["pose"] = True
 
     print(f"\nStarting {args.task} validation:")
-    print(f"  Model: {args.pth}")
+    print(f"  Model: {args.model_path}")
     print(f"  Dataset: {args.dataset}")
     print(f"  Split: {args.split}")
     print(f"  Batch size: {args.batchsize}")

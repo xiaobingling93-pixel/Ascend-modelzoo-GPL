@@ -1,10 +1,9 @@
-torch==1.10.1
-torchvision==0.11.2
-onnx==1.12.0
-onnxruntime>=1.8.0
+torch==2.1.0
+torchvision==0.16.0
+onnx==1.19.0
+onnxslim==0.1.84
 pycocotools>=2.0
-numpy>=1.18.5
-opencv-python>=4.1.1
+numpy==1.23.5
 Pillow>=7.1.2
 scipy>=1.4.1
 tqdm>=4.41.0

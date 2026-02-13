@@ -55,10 +55,10 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 
 | 配套                                                     | 版本     | 环境准备指导                                                                                                                                      |
 | ------------------------------------------------------- |--------|---------------------------------------------------------------------------------------------------------------------------------------------|
-| 固件与驱动                                               | 22.0.4 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies)                                               |
-| CANN                                                    | 6.0.0  | [推理应用开发学习文档](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/600alpha003/infacldevg/aclpythondevg/aclpythondevg_0000.html) |
-| Python                                                  | 3.7.5  | -                                                                                                                                           |
-| PyTorch                                                 | 1.10.1 | -                                                                                                                                           |
+| 固件与驱动                                               | 25.3.rc1 | [Pytorch框架推理环境准备](https://www.hiascend.com/document/detail/zh/ModelZoo/pytorchframework/pies)                                               |
+| CANN                                                    | 8.3.RC1  | [推理应用开发学习文档](https://www.hiascend.com/document/detail/zh/CANNCommunityEdition/600alpha003/infacldevg/aclpythondevg/aclpythondevg_0000.html) |
+| Python                                                  | 3.11.10  | -                                                                                                                                           |
+| PyTorch                                                 | 2.1.0 | -                                                                                                                                           |
 | 说明：Atlas 300I Duo 推理卡请以CANN版本选择实际固件与驱动版本。 | \      | \                                                                                                                                           |
 
 

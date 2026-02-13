@@ -25,15 +25,16 @@
 | DOTAv1  | DOTAv1.zip|[点击下载](https://github.com/ultralytics/assets/releases/download/v0.0.0/DOTAv1.zip)|
 
 ## 下载与准备详解
+**注意**：yolo各版本模型所要求数据集目录结构有差异，以下数据集目录结构以yolov11为例，其余版本需要参考各自README确认目录具体结构，并做相应调整。
 ### coco2017 val 数据集
 ```bash
 #进入项目目录
 cd ${YOLO_PATH}
 
 # 创建数据集目录
-mkdir -p ../datasets/coco/images
+mkdir -p datasets/coco/images
 
-cd ../datasets
+cd datasets
 
 # 下载并解压标注文件
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/coco2017labels-segments.zip
@@ -52,7 +53,7 @@ mkdir -p images/train2017  # 创建空的训练集目录
 cd ../datasets/coco
 
 # 创建验证图像列表 (对应coco.yaml中的 val: val2017.txt)
-ls images/val2017/*.jpg | sed 's/^/images\/val2017\//g' > val2017.txt
+ls ./images/val2017/*.jpg > val2017.txt
 ```
 最终数据集结构如下
 ```
@@ -70,7 +71,7 @@ datasets/
 ```bash
 #创建文件夹
 cd ${YOLO_PATH}
-mkdir -p datasets/coco-pose/images
+mkdir -p datasets/coco-pose/
 cd datasets/
 
 #下载标签并解压
@@ -107,17 +108,18 @@ ls labels/val2017/*.txt | sed 's/labels\/val2017\///g' | sed 's/\.txt/.jpg/g' | 
 ```bash
 cd ${YOLO_PATH}
 
-mkdir -p ../datasets/imagenet/val
-mkdir -p ../datasets/imagenet/train
-mkdir -p ../datasets/imagenet/test
-cd ../datasets/imagenet/val
+mkdir -p datasets/imagenet/val
+mkdir -p datasets/imagenet/train
+mkdir -p datasets/imagenet/test
+cd datasets/imagenet/val
 
 # 下载并解压验证集
 wget https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar
 tar -xf ILSVRC2012_img_val.tar
 
 # 执行预处理脚本
-wget -qO- https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh | bash
+wget https://raw.githubusercontent.com/soumith/imagenetloader.torch/master/valprep.sh
+bash valprep.sh
 ```
 最终数据集结构如下
 ```
@@ -138,8 +140,8 @@ imagenet/
 cd ${YOLO_PATH}
 
 # 创建DOTAv1数据集根目录
-mkdir -p ../datasets/DOTAv1/images
-cd ../datasets/DOTAv1
+mkdir -p datasets/DOTAv1/images
+cd datasets/DOTAv1
 
 # 下载DOTAv1数据集并解压 (约2GB)
 wget https://github.com/ultralytics/assets/releases/download/v0.0.0/DOTAv1.zip

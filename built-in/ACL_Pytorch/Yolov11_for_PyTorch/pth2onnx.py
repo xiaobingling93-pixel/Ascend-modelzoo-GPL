@@ -15,12 +15,13 @@ from ultralytics import YOLO
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--pt', default="yolov8n", help='pt file')
-    parser.add_argument('--batch', type=int, default=2, help='batch size for ONNX export')
+    parser.add_argument('--pt', default="yolo11n.pt", help='pt file')
+    parser.add_argument('--batch', type=int, default=1, help='batch size for ONNX export')
+
     args = parser.parse_args()
 
     model = YOLO(args.pt)
-    onnx_model = model.export(format="onnx", dynamic=False, simplify=True, opset=12, batch=args.batch)
+    onnx_model = model.export(format="onnx", dynamic=False, simplify=False, opset=12, batch=args.batch)
 
 
     # Rename the ONNX file to include batchsize information

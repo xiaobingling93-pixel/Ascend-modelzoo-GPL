@@ -1,4 +1,5 @@
 torch==2.1.0
+onnxslim==0.1.83
 torch_npu==2.1.0.post10
 torchvision==0.16.0
 numpy==1.26.0
