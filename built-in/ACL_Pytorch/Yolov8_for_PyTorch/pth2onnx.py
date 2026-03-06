@@ -20,7 +20,7 @@ def main():
     args = parser.parse_args()
 
     model = YOLO(args.pt)
-    onnx_model = model.export(format="onnx", dynamic=True, simplify=True, opset=11)
+    onnx_model = model.export(format="onnx", dynamic=True, simplify=True, opset=14)
 
 
 if __name__ == '__main__':
