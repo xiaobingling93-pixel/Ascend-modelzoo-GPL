@@ -6,5 +6,5 @@ numpy==1.26.4
 opencv-python==4.9.0.80
 onnx==1.20.1
 onnxruntime==1.23.2
-onnxsim==0.1.82
+onnxslim==0.1.82
 faster-coco-eval==1.7.2
