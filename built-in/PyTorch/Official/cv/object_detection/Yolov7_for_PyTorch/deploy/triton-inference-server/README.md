@@ -45,7 +45,7 @@ Note: 73.5 qps x batch 8 = 588 fps @ ~15ms latency.
 
 ## Model Repository
 
-See [Triton Model Repository Documentation](https://github.com/triton-inference-server/server/blob/main/docs/model_repository.md#model-repository) for more info.
+See Triton Model Repository Documentation for more info.
 
 ```bash
 # Create folder structure
@@ -57,7 +57,7 @@ mv yolov7-fp16-1x8x8.engine triton-deploy/models/yolov7/1/model.plan
 
 ## Model Configuration
 
-See [Triton Model Configuration Documentation](https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md#model-configuration) for more info.
+See Triton Model Configuration Documentation for more info.
 
 Minimal configuration for `triton-deploy/models/yolov7/config.pbtxt`:
 
@@ -100,7 +100,7 @@ In the log you should see:
 
 ## Performance with Model Analyzer
 
-See [Triton Model Analyzer Documentation](https://github.com/triton-inference-server/server/blob/main/docs/model_analyzer.md#model-analyzer) for more info.
+See Triton Model Analyzer Documentation for more info.
 
 Performance numbers @ RTX 3090 + AMD Ryzen 9 5950X
 
@@ -115,7 +115,7 @@ docker run -it --ipc=host --net=host nvcr.io/nvidia/tritonserver:22.06-py3-sdk /
 Concurrency: 16, throughput: 590.119 infer/sec, latency 27080 usec
 ```
 
-Throughput for 16 clients with batch size 1 is the same as for a single thread running the engine at 16 batch size locally thanks to Triton [Dynamic Batching Strategy](https://github.com/triton-inference-server/server/blob/main/docs/model_configuration.md#dynamic-batcher). Result without dynamic batching (disable in model configuration) considerably worse:
+Throughput for 16 clients with batch size 1 is the same as for a single thread running the engine at 16 batch size locally thanks to Triton Dynamic Batching Strategy. Result without dynamic batching (disable in model configuration) considerably worse:
 
 ```bash
 # Result (truncated)

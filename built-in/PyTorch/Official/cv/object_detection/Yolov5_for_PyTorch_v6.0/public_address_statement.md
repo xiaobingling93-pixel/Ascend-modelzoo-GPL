@@ -12,4 +12,3 @@
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0/Dockerfile                | https://ultralytics.com/assets/Arial.ttf                                                        | 数据集链接   |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0/export.py                 | https://netron.app                                                                              | 检测质量软件  |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0/hubconf.py                | https://ultralytics.com/images/zidane.jpg                                                       | 数据集url  |
-| modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v6.0/utils/plots.py            | https://ultralytics.com/assets/                                                                 | 数据集链接   |

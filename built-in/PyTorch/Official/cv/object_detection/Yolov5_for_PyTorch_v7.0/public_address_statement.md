@@ -6,7 +6,6 @@
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/coco.yaml                | http://images.cocodataset.org/zips/test2017.zip                                                   | 下载数据集     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/coco128.yaml             | https://ultralytics.com/assets/coco128.zip                                                        | 数据集链接     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/GlobalWheat2020.yaml     | https://zenodo.org/record/4298502/files/global-wheat-codalab-official.zip                         | 数据集链接     |
-| modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/Objects365.yaml          | https://dorc.ks3-cn-beijing.ksyun.com/data-set/2020Objects365%E6%95%B0%E6%8D%AE%E9%9B%89/{split}/ | 数据集链接     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/scripts/get_coco.sh      | http://images.cocodataset.org/zips/                                                               | 数据集链接     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/scripts/get_imagenet.sh  | https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_val.tar                                     | 下载数据集     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/data/scripts/get_imagenet.sh  | https://image-net.org/data/ILSVRC/2012/ILSVRC2012_img_train.tar                                   | 下载数据集     |
@@ -26,4 +25,3 @@
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/utils/downloads.py            | https://ultralytics.com/images/bus.jpg                                                            | 数据集链接     |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/utils/general.py              | https://www.kaggle.com                                                                            | kaggle链接  |
 | modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/utils/general.py              | https://ultralytics.com/images/bus.jpg                                                            | 数据集链接     |
-| modelzoo-GPL/built-in/PyTorch/Official/cv/object_detection/Yolov5_for_PyTorch_v7.0/utils/general.py              | https://ultralytics.com/assets/{font.name}                                                        | 数据集链接     |

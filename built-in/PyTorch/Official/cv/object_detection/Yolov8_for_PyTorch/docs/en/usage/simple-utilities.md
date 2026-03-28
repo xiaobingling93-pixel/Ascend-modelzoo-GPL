@@ -43,7 +43,7 @@ auto_annotate(  # (1)!
 
 1. Nothing returns from this function
 
-- [See the reference section for `annotator.auto_annotate`](../reference/data/annotator.md#ultralytics.data.annotator.auto_annotate) for more insight on how the function operates.
+- See the reference section for `annotator.auto_annotate` for more insight on how the function operates.
 
 - Use in combination with the [function `segments2boxes`](#convert-segments-to-bounding-boxes) to generate object detection bounding boxes as well
 
@@ -80,7 +80,7 @@ convert_coco(  # (1)!
 
 1. Nothing returns from this function
 
-For additional information about the `convert_coco` function, [visit the reference page](../reference/data/converter.md#ultralytics.data.converter.convert_coco)
+For additional information about the `convert_coco` function, visit the reference page
 
 ### Get [Bounding Box](https://www.ultralytics.com/glossary/bounding-box) Dimensions
 
@@ -134,7 +134,7 @@ yolo_bbox2segment(  # (1)!
 
 1. Nothing returns from this function
 
-[Visit the `yolo_bbox2segment` reference page](../reference/data/converter.md#ultralytics.data.converter.yolo_bbox2segment) for more information regarding the function.
+Visit the `yolo_bbox2segment` reference page for more information regarding the function.
 
 ### Convert Segments to Bounding Boxes
 
@@ -160,7 +160,7 @@ segments2boxes([s.reshape(-1, 2) for s in segments])
 #           dtype=float32) # xywh bounding boxes
 ```
 
-To understand how this function works, visit the [reference page](../reference/utils/ops.md#ultralytics.utils.ops.segments2boxes)
+To understand how this function works, visit the reference page
 
 ## Utilities
 
@@ -195,7 +195,7 @@ autosplit(  # (1)!
 
 1. Nothing returns from this function
 
-See the [Reference page](../reference/data/utils.md#ultralytics.data.utils.autosplit) for additional details on this function.
+See the Reference page for additional details on this function.
 
 ### Segment-polygon to Binary Mask
 
@@ -261,7 +261,7 @@ print(boxes.bboxes)
 # )
 ```
 
-See the [`Bboxes` reference section](../reference/utils/instance.md#ultralytics.utils.instance.Bboxes) for more attributes and methods available.
+See the `Bboxes` reference section for more attributes and methods available.
 
 !!! tip
 
@@ -534,7 +534,7 @@ cap.release()
 cv2.destroyAllWindows()
 ```
 
-See the [`Annotator` Reference Page](../reference/utils/plotting.md#ultralytics.utils.plotting.Annotator) for additional insight.
+See the `Annotator` Reference Page for additional insight.
 
 ## Miscellaneous
 
@@ -583,7 +583,7 @@ make_divisible(7, 2)
 
 ### What utilities are included in the Ultralytics package to enhance [machine learning](https://www.ultralytics.com/glossary/machine-learning-ml) workflows?
 
-The Ultralytics package includes a variety of utilities designed to streamline and optimize machine learning workflows. Key utilities include [auto-annotation](../reference/data/annotator.md#ultralytics.data.annotator.auto_annotate) for labeling datasets, converting COCO to YOLO format with [convert_coco](../reference/data/converter.md#ultralytics.data.converter.convert_coco), compressing images, and dataset auto-splitting. These tools aim to reduce manual effort, ensure consistency, and enhance data processing efficiency.
+The Ultralytics package includes a variety of utilities designed to streamline and optimize machine learning workflows. Key utilities include auto-annotation for labeling datasets, converting COCO to YOLO format with convert_coco, compressing images, and dataset auto-splitting. These tools aim to reduce manual effort, ensure consistency, and enhance data processing efficiency.
 
 ### How can I use Ultralytics to auto-label my dataset?
 
@@ -601,7 +601,7 @@ auto_annotate(
 )
 ```
 
-For more details, check the [auto_annotate reference section](../reference/data/annotator.md#ultralytics.data.annotator.auto_annotate).
+For more details, check the auto_annotate reference section.
 
 ### How do I convert COCO dataset annotations to YOLO format in Ultralytics?
 
@@ -618,7 +618,7 @@ convert_coco(
 )
 ```
 
-For additional information, visit the [convert_coco reference page](../reference/data/converter.md#ultralytics.data.converter.convert_coco).
+For additional information, visit the convert_coco reference page.
 
 ### What is the purpose of the YOLO Data Explorer in the Ultralytics package?
 
@@ -638,4 +638,4 @@ yolo_bbox2segment(
 )
 ```
 
-For more information, visit the [yolo_bbox2segment reference page](../reference/data/converter.md#ultralytics.data.converter.yolo_bbox2segment).
+For more information, visit the yolo_bbox2segment reference page.

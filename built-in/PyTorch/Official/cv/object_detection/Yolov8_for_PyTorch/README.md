@@ -1,6 +1,5 @@
 # Yolov8_for_PyTorch
 
-- [Yolov8\_for\_PyTorch](#Yolov8_for_PyTorch)
 - [概述](#概述)
   - [简述](#简述)
 - [准备训练环境](#准备训练环境)
