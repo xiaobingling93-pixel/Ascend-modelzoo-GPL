@@ -67,7 +67,12 @@ YOLOv5每个版本主要有4个开源模型，分别为YOLOv5s、YOLOv5m、YOLOv
 ## 获取源码
 
 1. 获取`Pytorch`源码  
-   ```
+   ```bash
+   #获取本仓代码并进入
+   git clone https://gitcode.com/Ascend/modelzoo-GPL.git
+   cd modelzoo-GPL/built-in/ACL_Pytorch/Yolov5_for_Pytorch/
+   
+   #获取官仓代码
    git clone https://github.com/ultralytics/yolov5.git
    cd yolov5
    git checkout v2.0/v3.1/v4.0/v5.0/v6.0/v6.1/v6.2/v7.0  # 切换到所用版本

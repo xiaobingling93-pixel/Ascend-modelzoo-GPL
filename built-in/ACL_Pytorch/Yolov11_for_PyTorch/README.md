@@ -67,7 +67,12 @@ TorchAir（Torch Ascend Intermediate Representation）是昇腾Ascend Extension 
 
 1. 获取`Pytorch`源码  
    
-   ```
+   ```bash
+   #获取本仓代码并进入
+   git clone https://gitcode.com/Ascend/modelzoo-GPL.git
+   cd modelzoo-GPL/built-in/ACL_Pytorch/Yolov11_for_PyTorch/
+   
+   #获取官仓代码并执行本仓修改
    git clone https://github.com/ultralytics/ultralytics.git
    cd ultralytics
    git reset --hard e74b035
