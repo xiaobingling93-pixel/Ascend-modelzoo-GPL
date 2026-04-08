@@ -174,7 +174,7 @@ datasets/imagenet/
    atc --framework=5 \
        --model=yolov8s-cls.onnx \
        --input_format=NCHW \
-       --input_shape="images:${batchsize},3,640,640" \
+       --input_shape="images:${batchsize},3,224,224" \
        --precision_mode_v2=mixed_float16 \
        --output=yolov8s-cls_bs${batchsize} \
        --log=error \
